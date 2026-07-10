@@ -11,6 +11,8 @@ https://dseung001.github.io/invite-maker/
 - Choose invitation text language: Korean, English, Japanese, Chinese
 - Set a cover image (sample image or HTTPS image URL)
 - Offer date and time options
+- Fill times quickly with presets (Lunch/Afternoon/Evening)
+- Copy selected times from one date to other dates in one click
 - Offer food options
 - Share one invitation link with your partner
 - Let your partner choose date, time, and food, then copy/share the final result
@@ -19,6 +21,8 @@ https://dseung001.github.io/invite-maker/
 
 1. Open the app home page.
 2. Customize your invitation message, image, schedule options, and food options.
+   - For date/time setup, use presets first and fine-tune with individual time chips if needed.
+   - You can copy selected times from one date to the other dates.
 3. Copy the generated invitation link.
 4. Send the link to your partner.
 5. Your partner opens the link and responds step by step.
