@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import InviteRenderer from "@/components/InviteRenderer";
 import { encodeInvite } from "@/lib/invite-codec";
 import { createDefaultInvite, TEXT_PRESETS } from "@/lib/invite-defaults";
@@ -19,6 +19,7 @@ const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
   const m = i % 2 === 0 ? "00" : "30";
   return `${h}:${m}`;
 });
+const SAMPLE_PAGE_SIZE = 6;
 
 function todayString(): string {
   const d = new Date();
@@ -33,6 +34,7 @@ export default function EditorPage() {
   const [showPreview, setShowPreview] = useState(false);
   const [copied, setCopied] = useState(false);
   const [previewKey, setPreviewKey] = useState(0);
+  const [samplePage, setSamplePage] = useState(1);
 
   const update = (patch: Partial<InviteData>) => {
     setInvite((prev) => ({ ...prev, ...patch }));
@@ -141,6 +143,21 @@ export default function EditorPage() {
     cleanedInvite.foods.length >= LIMITS.minFoods
       ? cleanedInvite
       : invite;
+  const totalSamplePages = Math.ceil(SAMPLE_IMAGE_IDS.length / SAMPLE_PAGE_SIZE);
+  const pagedSampleIds = useMemo(() => {
+    const start = (samplePage - 1) * SAMPLE_PAGE_SIZE;
+    return SAMPLE_IMAGE_IDS.slice(start, start + SAMPLE_PAGE_SIZE);
+  }, [samplePage]);
+
+  useEffect(() => {
+    if (invite.image.type !== "sample") return;
+    const selectedIndex = SAMPLE_IMAGE_IDS.findIndex((id) => id === invite.image.value);
+    if (selectedIndex === -1) return;
+    const targetPage = Math.floor(selectedIndex / SAMPLE_PAGE_SIZE) + 1;
+    if (targetPage !== samplePage) {
+      setSamplePage(targetPage);
+    }
+  }, [invite.image, samplePage]);
 
   return (
     <main className="editor-layout">
@@ -168,7 +185,7 @@ export default function EditorPage() {
         <section className="editor-section">
           <h2>대표 이미지</h2>
           <div className="sample-grid">
-            {SAMPLE_IMAGE_IDS.map((id) => (
+            {pagedSampleIds.map((id) => (
               <button
                 key={id}
                 type="button"
@@ -186,6 +203,27 @@ export default function EditorPage() {
                 <img src={sampleImageSrc(id)} alt={`샘플 이미지 ${id}`} />
               </button>
             ))}
+          </div>
+          <div className="sample-pagination" aria-label="대표 이미지 페이지 이동">
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setSamplePage((p) => Math.max(1, p - 1))}
+              disabled={samplePage === 1}
+            >
+              이전
+            </button>
+            <span className="sample-page-indicator">
+              {samplePage} / {totalSamplePages}
+            </span>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={() => setSamplePage((p) => Math.min(totalSamplePages, p + 1))}
+              disabled={samplePage === totalSamplePages}
+            >
+              다음
+            </button>
           </div>
           <label className="field">
             <span>또는 외부 이미지 URL (https만 허용)</span>

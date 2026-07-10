@@ -67,4 +67,12 @@ export const SAMPLE_IMAGE_IDS = [
   "sample-04",
   "sample-05",
   "sample-06",
+  "sample-07",
+  "sample-08",
+  "sample-09",
+  "sample-10",
+  "sample-11",
+  "sample-12",
+  "sample-13",
+  "sample-14",
 ] as const;
