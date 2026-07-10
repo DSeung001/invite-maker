@@ -43,6 +43,20 @@ export const TEXT_PRESETS: Record<InviteLanguage, InviteText> = {
     rejectTitle: "大丈夫...",
     rejectDescription: "また今度、機会があったら... その時は一緒に行こうね。",
   },
+  zh: {
+    question: "那个... 你愿意和我约会吗？",
+    yesLabel: "好呀",
+    noLabel: "嗯...",
+    yesTitle: "诶，真的？",
+    yesDescription: "其实我一直在紧张你会不会拒绝...",
+    nextButton: "那... 下一步",
+    scheduleTitle: "我们什么时候见面呢？",
+    foodTitle: "那天... 想吃什么？",
+    finalTitle: "谢谢你",
+    finalLetter: "一想到那天要见你，我已经开始期待了。到时见。",
+    rejectTitle: "没关系",
+    rejectDescription: "如果下次有机会... 我们再一起去吧。",
+  },
 };
 
 export const DEFAULT_FOODS = [

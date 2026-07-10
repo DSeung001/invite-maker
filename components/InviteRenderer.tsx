@@ -5,15 +5,13 @@ import EscapeButton from "./EscapeButton";
 import ResultShare from "./ResultShare";
 import type { InviteData } from "@/lib/invite-types";
 import { sampleImageSrc } from "@/lib/paths";
+import { DATE_LOCALES, TIMEZONE_LABELS } from "@/lib/invite-i18n";
 
 type Step = "question" | "accepted" | "schedule" | "food" | "final" | "rejected";
 
-const LOCALES = { ko: "ko-KR", en: "en-US", ja: "ja-JP" } as const;
-const TZ_LABEL = { ko: "한국 표준시", en: "KST (UTC+9)", ja: "韓国標準時" } as const;
-
 export function formatDate(date: string, language: InviteData["language"]): string {
   const [y, m, d] = date.split("-").map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString(LOCALES[language], {
+  return new Date(y, m - 1, d).toLocaleDateString(DATE_LOCALES[language], {
     year: "numeric",
     month: "long",
     day: "numeric",
@@ -23,7 +21,7 @@ export function formatDate(date: string, language: InviteData["language"]): stri
 
 export function formatTime(time: string, language: InviteData["language"]): string {
   const [h, min] = time.split(":").map(Number);
-  return new Date(2000, 0, 1, h, min).toLocaleTimeString(LOCALES[language], {
+  return new Date(2000, 0, 1, h, min).toLocaleTimeString(DATE_LOCALES[language], {
     hour: "numeric",
     minute: "2-digit",
   });
@@ -179,7 +177,7 @@ export default function InviteRenderer({ data }: { data: InviteData }) {
             <div>
               <dt>🕐</dt>
               <dd>
-                {formatTime(selectedTime, language)} · {TZ_LABEL[language]}
+                {formatTime(selectedTime, language)} · {TIMEZONE_LABELS[language]}
               </dd>
             </div>
             <div>
@@ -191,7 +189,7 @@ export default function InviteRenderer({ data }: { data: InviteData }) {
             language={language}
             date={formatDate(selectedDate, language)}
             time={formatTime(selectedTime, language)}
-            timezone={TZ_LABEL[language]}
+            timezone={TIMEZONE_LABELS[language]}
             food={data.foods[selectedFood].label}
           />
         </>
