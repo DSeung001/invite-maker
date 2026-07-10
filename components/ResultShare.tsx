@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import type { InviteLanguage } from "@/lib/invite-types";
+import { RESULT_SHARE_UI } from "@/lib/invite-i18n";
 
 type Props = {
   language: InviteLanguage;
@@ -11,46 +12,10 @@ type Props = {
   food: string;
 };
 
-const UI = {
-  ko: {
-    copy: "결과 복사",
-    share: "결과 공유",
-    copied: "복사했어요!",
-    failed: "복사에 실패했어요. 아래 내용을 직접 복사해 주세요.",
-    header: "데이트 약속 완료 💗",
-    date: "날짜",
-    time: "시간",
-    tz: "시간대",
-    food: "음식",
-  },
-  en: {
-    copy: "Copy result",
-    share: "Share result",
-    copied: "Copied!",
-    failed: "Copy failed. Please copy the text below.",
-    header: "Date confirmed 💗",
-    date: "Date",
-    time: "Time",
-    tz: "Timezone",
-    food: "Food",
-  },
-  ja: {
-    copy: "結果をコピー",
-    share: "結果を共有",
-    copied: "コピーしました！",
-    failed: "コピーに失敗しました。下のテキストをコピーしてください。",
-    header: "デートの約束完了 💗",
-    date: "日付",
-    time: "時間",
-    tz: "タイムゾーン",
-    food: "食べ物",
-  },
-} as const;
-
 export default function ResultShare({ language, date, time, timezone, food }: Props) {
   const [message, setMessage] = useState<string | null>(null);
   const [fallbackText, setFallbackText] = useState<string | null>(null);
-  const ui = UI[language];
+  const ui = RESULT_SHARE_UI[language];
 
   const resultText = [
     ui.header,

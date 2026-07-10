@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import InviteRenderer from "@/components/InviteRenderer";
 import { encodeInvite } from "@/lib/invite-codec";
 import { createDefaultInvite, TEXT_PRESETS } from "@/lib/invite-defaults";
+import { LANGUAGE_LABELS, SUPPORTED_LANGUAGES } from "@/lib/invite-i18n";
 import { isValidImageUrl, normalizeSchedules } from "@/lib/invite-validation";
 import {
   InviteData,
@@ -149,7 +150,7 @@ export default function EditorPage() {
         <section className="editor-section">
           <h2>언어</h2>
           <div className="chip-row">
-            {(["ko", "en", "ja"] as const).map((lang) => (
+            {SUPPORTED_LANGUAGES.map((lang) => (
               <button
                 key={lang}
                 type="button"
@@ -157,7 +158,7 @@ export default function EditorPage() {
                 aria-pressed={invite.language === lang}
                 onClick={() => setLanguage(lang)}
               >
-                {lang === "ko" ? "한국어" : lang === "en" ? "English" : "日本語"}
+                {LANGUAGE_LABELS[lang]}
               </button>
             ))}
           </div>

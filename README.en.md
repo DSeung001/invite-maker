@@ -2,13 +2,6 @@
 
 Date Invitation Maker helps you create a playful date invitation and share it with one link.
 
-## Language READMEs
-
-- [English](./README.en.md)
-- [한국어](./README.ko.md)
-- [日本語](./README.ja.md)
-- [中文](./README.zh.md)
-
 ## What you can do
 
 - Choose invitation text language: Korean, English, Japanese, Chinese

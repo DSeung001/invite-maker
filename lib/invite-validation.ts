@@ -5,6 +5,7 @@ import {
   SAMPLE_IMAGE_IDS,
   Schedule,
 } from "./invite-types";
+import { isSupportedLanguage } from "./invite-i18n";
 
 const SAMPLE_IDS = new Set<string>(SAMPLE_IMAGE_IDS);
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -55,8 +56,7 @@ export function validateInvite(raw: unknown): InviteData | null {
   if (data.version !== 1) return null;
   if (!data.text || typeof data.text !== "object") return null;
 
-  const language =
-    data.language === "en" || data.language === "ja" ? data.language : "ko";
+  const language = isSupportedLanguage(data.language) ? data.language : "ko";
 
   const textFields = [
     "question",

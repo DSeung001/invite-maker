@@ -1,4 +1,4 @@
-export type InviteLanguage = "ko" | "en" | "ja";
+export type InviteLanguage = "ko" | "en" | "ja" | "zh";
 
 export type InviteImage =
   | { type: "sample"; value: string }
