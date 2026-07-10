@@ -32,7 +32,3 @@ Date Invitation Maker helps you create a playful date invitation and share it wi
 - Invitation data is stored in the URL itself.
 - Anyone with the link can read that data.
 - Do not include sensitive personal information.
-
-## Analytics setup
-
-To enable Google Analytics 4, set `NEXT_PUBLIC_GA_ID` (for example `G-XXXXXXXXXX`).
