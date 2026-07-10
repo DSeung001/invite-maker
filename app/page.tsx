@@ -20,6 +20,27 @@ const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
   return `${h}:${m}`;
 });
 
+const TIME_INDEX = new Map(TIME_OPTIONS.map((t, i) => [t, i]));
+
+function createTimeRange(start: string, end: string): string[] {
+  const startIndex = TIME_INDEX.get(start);
+  const endIndex = TIME_INDEX.get(end);
+  if (startIndex === undefined || endIndex === undefined || startIndex > endIndex) {
+    return [];
+  }
+  return TIME_OPTIONS.slice(startIndex, endIndex + 1);
+}
+
+const TIME_PRESETS = [
+  { id: "lunch", label: "점심", times: createTimeRange("11:30", "14:00") },
+  { id: "afternoon", label: "오후", times: createTimeRange("14:00", "17:00") },
+  { id: "evening", label: "저녁", times: createTimeRange("18:00", "21:00") },
+] as const;
+
+function isSameTimes(a: string[], b: string[]): boolean {
+  return a.length === b.length && a.every((time, index) => time === b[index]);
+}
+
 function todayString(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
@@ -77,6 +98,33 @@ export default function EditorPage() {
       };
     });
     update({ schedules });
+  };
+
+  const applyPreset = (index: number, presetTimes: string[]) => {
+    update({
+      schedules: invite.schedules.map((s, i) =>
+        i === index
+          ? { ...s, times: presetTimes.slice(0, LIMITS.maxTimesPerDate) }
+          : s
+      ),
+    });
+  };
+
+  const clearTimes = (index: number) => {
+    update({
+      schedules: invite.schedules.map((s, i) => (i === index ? { ...s, times: [] } : s)),
+    });
+  };
+
+  const copyTimesToOtherDates = (sourceIndex: number) => {
+    const source = invite.schedules[sourceIndex];
+    if (!source || source.times.length === 0 || invite.schedules.length < 2) return;
+    const times = [...source.times].slice(0, LIMITS.maxTimesPerDate);
+    update({
+      schedules: invite.schedules.map((s, i) =>
+        i === sourceIndex ? s : { ...s, times: [...times] }
+      ),
+    });
   };
 
   // --- foods ---
@@ -293,6 +341,29 @@ export default function EditorPage() {
                   ✕
                 </button>
               </div>
+              <div className="quick-action-row">
+                {TIME_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    className={`option-chip small${
+                      isSameTimes(s.times, preset.times.slice(0, LIMITS.maxTimesPerDate))
+                        ? " selected"
+                        : ""
+                    }`}
+                    onClick={() => applyPreset(i, preset.times)}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  className="option-chip small"
+                  onClick={() => clearTimes(i)}
+                >
+                  시간 초기화
+                </button>
+              </div>
               <div className="time-grid">
                 {TIME_OPTIONS.map((t) => (
                   <button
@@ -306,8 +377,19 @@ export default function EditorPage() {
                   </button>
                 ))}
               </div>
+              <div className="quick-action-row">
+                <button
+                  type="button"
+                  className="btn btn-secondary schedule-copy-btn"
+                  disabled={invite.schedules.length < 2 || s.times.length === 0}
+                  onClick={() => copyTimesToOtherDates(i)}
+                >
+                  이 시간대를 다른 날짜에 복사
+                </button>
+              </div>
               <p className="hint">
                 선택한 시간 {s.times.length}/{LIMITS.maxTimesPerDate}
+                {s.times.length > 0 ? ` · ${s.times.join(", ")}` : ""}
               </p>
             </div>
           ))}
