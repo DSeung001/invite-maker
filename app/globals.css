@@ -514,6 +514,15 @@ p.error-list {
   display: flex;
   gap: 8px;
   align-items: center;
+  border: 2px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 8px;
+  background: #fff;
+}
+
+.food-editor-row.active {
+  border-color: var(--accent);
+  background: var(--selected-bg);
 }
 
 .food-editor-row input {
@@ -526,9 +535,99 @@ p.error-list {
   min-width: 0;
 }
 
+.food-slot-button {
+  border: none;
+  border-radius: 10px;
+  min-width: 40px;
+  height: 40px;
+  background: #eceef2;
+  color: var(--secondary-color);
+  font-weight: 700;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.food-slot-button.active {
+  background: var(--accent);
+  color: #fff;
+}
+
 .food-icon-input {
   flex: 0 0 64px !important;
   text-align: center;
+}
+
+.food-preset-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.food-preset-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.food-preset-title {
+  margin: 0 0 4px;
+  font-size: 0.96rem;
+}
+
+.food-slot-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: var(--selected-bg);
+  color: var(--title-color);
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.food-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 8px;
+}
+
+.food-preset-chip {
+  border: 1.5px solid var(--border-soft);
+  border-radius: 14px;
+  background: #fff;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--body-color);
+}
+
+.food-preset-chip.selected {
+  border-color: var(--accent);
+  background: var(--selected-bg);
+  color: var(--title-color);
+}
+
+.food-preset-chip:focus-visible,
+.food-slot-button:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.food-preset-icon {
+  font-size: 1.6rem;
+}
+
+.food-preset-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  word-break: keep-all;
 }
 
 .link-actions {
