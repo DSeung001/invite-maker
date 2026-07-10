@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import InviteRenderer from "@/components/InviteRenderer";
+import ScheduleEditorRow from "@/components/ScheduleEditorRow";
 import { encodeInvite } from "@/lib/invite-codec";
 import {
   createDefaultFoods,
@@ -9,7 +10,12 @@ import {
   FOOD_PRESETS,
   TEXT_PRESETS,
 } from "@/lib/invite-defaults";
-import { LANGUAGE_LABELS, SUPPORTED_LANGUAGES } from "@/lib/invite-i18n";
+import {
+  EDITOR_UI,
+  LANGUAGE_LABELS,
+  SUPPORTED_LANGUAGES,
+  TIME_PRESET_LABELS,
+} from "@/lib/invite-i18n";
 import { isValidImageUrl, normalizeSchedules } from "@/lib/invite-validation";
 import {
   FoodOption,
@@ -20,32 +26,25 @@ import {
 } from "@/lib/invite-types";
 import { assetPath, sampleImageSrc } from "@/lib/paths";
 
-const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
-  const h = String(Math.floor(i / 2)).padStart(2, "0");
-  const m = i % 2 === 0 ? "00" : "30";
-  return `${h}:${m}`;
-});
 const SAMPLE_PAGE_SIZE = 6;
+const SAMPLES_ON_FIRST_PAGE = SAMPLE_PAGE_SIZE - 1;
 
-const TIME_INDEX = new Map(TIME_OPTIONS.map((t, i) => [t, i]));
-
-function createTimeRange(start: string, end: string): string[] {
-  const startIndex = TIME_INDEX.get(start);
-  const endIndex = TIME_INDEX.get(end);
-  if (startIndex === undefined || endIndex === undefined || startIndex > endIndex) {
-    return [];
-  }
-  return TIME_OPTIONS.slice(startIndex, endIndex + 1);
+function getTotalSamplePages(): number {
+  const remaining = Math.max(0, SAMPLE_IMAGE_IDS.length - SAMPLES_ON_FIRST_PAGE);
+  return 1 + Math.ceil(remaining / SAMPLE_PAGE_SIZE);
 }
 
-const TIME_PRESETS = [
-  { id: "lunch", label: "점심", times: createTimeRange("11:30", "14:00") },
-  { id: "afternoon", label: "오후", times: createTimeRange("14:00", "17:00") },
-  { id: "evening", label: "저녁", times: createTimeRange("18:00", "21:00") },
-] as const;
+function getSamplePageForIndex(index: number): number {
+  if (index < SAMPLES_ON_FIRST_PAGE) return 1;
+  return 2 + Math.floor((index - SAMPLES_ON_FIRST_PAGE) / SAMPLE_PAGE_SIZE);
+}
 
-function isSameTimes(a: string[], b: string[]): boolean {
-  return a.length === b.length && a.every((time, index) => time === b[index]);
+function getPagedSampleIds(page: number): string[] {
+  if (page === 1) {
+    return SAMPLE_IMAGE_IDS.slice(0, SAMPLES_ON_FIRST_PAGE);
+  }
+  const start = SAMPLES_ON_FIRST_PAGE + (page - 2) * SAMPLE_PAGE_SIZE;
+  return SAMPLE_IMAGE_IDS.slice(start, start + SAMPLE_PAGE_SIZE);
 }
 
 function todayString(): string {
@@ -67,12 +66,14 @@ function areFoodListsEqual(left: FoodOption[], right: FoodOption[]): boolean {
 
 export default function EditorPage() {
   const [invite, setInvite] = useState<InviteData>(() => createDefaultInvite("ko"));
-  const [urlInput, setUrlInput] = useState("");
+  const [urlDraft, setUrlDraft] = useState("");
+  const [showUrlModal, setShowUrlModal] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [copied, setCopied] = useState(false);
   const [previewKey, setPreviewKey] = useState(0);
   const [samplePage, setSamplePage] = useState(1);
   const [activeFoodIndex, setActiveFoodIndex] = useState(0);
+  const urlInputRef = useRef<HTMLInputElement>(null);
 
   const update = (patch: Partial<InviteData>) => {
     setInvite((prev) => ({ ...prev, ...patch }));
@@ -116,17 +117,21 @@ export default function EditorPage() {
     update({ schedules: invite.schedules.filter((_, i) => i !== index) });
   };
 
-  const toggleTime = (index: number, time: string) => {
+  const addTime = (index: number, time: string) => {
     const schedules = invite.schedules.map((s, i) => {
       if (i !== index) return s;
-      const has = s.times.includes(time);
-      if (!has && s.times.length >= LIMITS.maxTimesPerDate) return s;
-      return {
-        ...s,
-        times: has ? s.times.filter((t) => t !== time) : [...s.times, time].sort(),
-      };
+      if (s.times.includes(time) || s.times.length >= LIMITS.maxTimesPerDate) return s;
+      return { ...s, times: [...s.times, time].sort() };
     });
     update({ schedules });
+  };
+
+  const removeTime = (index: number, time: string) => {
+    update({
+      schedules: invite.schedules.map((s, i) =>
+        i === index ? { ...s, times: s.times.filter((t) => t !== time) } : s
+      ),
+    });
   };
 
   const applyPreset = (index: number, presetTimes: string[]) => {
@@ -198,14 +203,19 @@ export default function EditorPage() {
     };
   }, [invite, today]);
 
-  const errors: string[] = [];
-  if (cleanedInvite.schedules.length === 0)
-    errors.push("과거가 아닌 날짜와 시간을 최소 1개 설정해 주세요.");
-  if (cleanedInvite.foods.length < LIMITS.minFoods)
-    errors.push(`음식 후보를 ${LIMITS.minFoods}개 이상 입력해 주세요.`);
-  if (invite.image.type === "url" && !isValidImageUrl(invite.image.value))
-    errors.push("이미지 URL은 https:// 로 시작해야 하며 500자 이하여야 합니다.");
-  if (!invite.text.question.trim()) errors.push("메인 질문을 입력해 주세요.");
+  const ui = EDITOR_UI[invite.language];
+  const timePresetLabels = TIME_PRESET_LABELS[invite.language];
+
+  const errors = useMemo(() => {
+    const msgs: string[] = [];
+    if (cleanedInvite.schedules.length === 0) msgs.push(ui.errorNoSchedule);
+    if (cleanedInvite.foods.length < LIMITS.minFoods)
+      msgs.push(ui.errorMinFoods(LIMITS.minFoods));
+    if (invite.image.type === "url" && !isValidImageUrl(invite.image.value))
+      msgs.push(ui.errorInvalidImageUrl);
+    if (!invite.text.question.trim()) msgs.push(ui.errorNoQuestion);
+    return msgs;
+  }, [cleanedInvite, invite.image, invite.text.question, invite.language]);
 
   const hasErrors = errors.length > 0;
   const inviteUrl = useMemo(() => {
@@ -233,31 +243,59 @@ export default function EditorPage() {
     cleanedInvite.foods.length >= LIMITS.minFoods
       ? cleanedInvite
       : invite;
-  const totalSamplePages = Math.ceil(SAMPLE_IMAGE_IDS.length / SAMPLE_PAGE_SIZE);
-  const pagedSampleIds = useMemo(() => {
-    const start = (samplePage - 1) * SAMPLE_PAGE_SIZE;
-    return SAMPLE_IMAGE_IDS.slice(start, start + SAMPLE_PAGE_SIZE);
-  }, [samplePage]);
+  const totalSamplePages = getTotalSamplePages();
+  const pagedSampleIds = useMemo(() => getPagedSampleIds(samplePage), [samplePage]);
 
   useEffect(() => {
-    if (invite.image.type !== "sample") return;
+    if (invite.image.type === "url") {
+      setSamplePage(1);
+      return;
+    }
     const selectedIndex = SAMPLE_IMAGE_IDS.findIndex((id) => id === invite.image.value);
     if (selectedIndex === -1) return;
-    const targetPage = Math.floor(selectedIndex / SAMPLE_PAGE_SIZE) + 1;
-    if (targetPage !== samplePage) {
-      setSamplePage(targetPage);
-    }
-  }, [invite.image, samplePage]);
+    setSamplePage(getSamplePageForIndex(selectedIndex));
+  }, [invite.image.type, invite.image.value]);
+
+  useEffect(() => {
+    if (!showUrlModal) return;
+    requestAnimationFrame(() => urlInputRef.current?.focus());
+  }, [showUrlModal]);
+
+  useEffect(() => {
+    if (!showUrlModal) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowUrlModal(false);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [showUrlModal]);
+
+  useEffect(() => {
+    document.documentElement.lang = invite.language;
+  }, [invite.language]);
+
+  const openUrlModal = () => {
+    setUrlDraft(invite.image.type === "url" ? invite.image.value : "");
+    setShowUrlModal(true);
+  };
+
+  const applyUrlDraft = () => {
+    const value = urlDraft.trim();
+    if (!isValidImageUrl(value)) return;
+    update({ image: { type: "url", value } });
+    setShowUrlModal(false);
+  };
   const activeFood = invite.foods[activeFoodIndex];
   const presetFoods = FOOD_PRESETS[invite.language];
+  const urlDraftValid = isValidImageUrl(urlDraft.trim());
 
   return (
     <main className="editor-layout">
       <div className="editor-form">
-        <h1 className="editor-heading">데이트 초대장 만들기 💌</h1>
+        <h1 className="editor-heading">{ui.heading}</h1>
 
         <section className="editor-section">
-          <h2>언어</h2>
+          <h2>{ui.sectionLanguage}</h2>
           <div className="chip-row">
             {SUPPORTED_LANGUAGES.map((lang) => (
               <button
@@ -271,12 +309,28 @@ export default function EditorPage() {
               </button>
             ))}
           </div>
-          <p className="hint">언어를 바꾸면 기본 문구가 초기화됩니다.</p>
+          <p className="hint">{ui.languageHint}</p>
         </section>
 
         <section className="editor-section">
-          <h2>대표 이미지</h2>
+          <h2>{ui.sectionImage}</h2>
           <div className="sample-grid">
+            {samplePage === 1 && (
+              <button
+                type="button"
+                className={`sample-thumb sample-thumb-custom${
+                  invite.image.type === "url" ? " selected" : ""
+                }`}
+                aria-pressed={invite.image.type === "url"}
+                aria-label={ui.customImageAriaLabel}
+                onClick={openUrlModal}
+              >
+                <span className="sample-thumb-custom-icon" aria-hidden>
+                  ?
+                </span>
+                <span className="sample-thumb-custom-label">{ui.customImageLabel}</span>
+              </button>
+            )}
             {pagedSampleIds.map((id) => (
               <button
                 key={id}
@@ -287,23 +341,20 @@ export default function EditorPage() {
                     : ""
                 }`}
                 aria-pressed={invite.image.type === "sample" && invite.image.value === id}
-                onClick={() => {
-                  setUrlInput("");
-                  update({ image: { type: "sample", value: id } });
-                }}
+                onClick={() => update({ image: { type: "sample", value: id } })}
               >
-                <img src={sampleImageSrc(id)} alt={`샘플 이미지 ${id}`} />
+                <img src={sampleImageSrc(id)} alt={ui.sampleImageAlt(id)} />
               </button>
             ))}
           </div>
-          <div className="sample-pagination" aria-label="대표 이미지 페이지 이동">
+          <div className="sample-pagination" aria-label={ui.samplePaginationAriaLabel}>
             <button
               type="button"
               className="btn btn-secondary"
               onClick={() => setSamplePage((p) => Math.max(1, p - 1))}
               disabled={samplePage === 1}
             >
-              이전
+              {ui.prev}
             </button>
             <span className="sample-page-indicator">
               {samplePage} / {totalSamplePages}
@@ -314,34 +365,16 @@ export default function EditorPage() {
               onClick={() => setSamplePage((p) => Math.min(totalSamplePages, p + 1))}
               disabled={samplePage === totalSamplePages}
             >
-              다음
+              {ui.next}
             </button>
           </div>
-          <label className="field">
-            <span>또는 외부 이미지 URL (https만 허용)</span>
-            <input
-              type="url"
-              value={urlInput}
-              maxLength={LIMITS.imageUrl}
-              placeholder="https://example.com/image.webp"
-              onChange={(e) => {
-                const value = e.target.value;
-                setUrlInput(value);
-                if (value.trim() === "") {
-                  update({ image: { type: "sample", value: "sample-01" } });
-                } else {
-                  update({ image: { type: "url", value: value.trim() } });
-                }
-              }}
-            />
-          </label>
         </section>
 
         <section className="editor-section">
-          <h2>문구</h2>
+          <h2>{ui.sectionText}</h2>
           <label className="field">
             <span>
-              메인 질문 ({invite.text.question.length}/{LIMITS.question})
+              {ui.fieldQuestion} ({ui.fieldCount(invite.text.question.length, LIMITS.question)})
             </span>
             <input
               value={invite.text.question}
@@ -351,7 +384,7 @@ export default function EditorPage() {
           </label>
           <label className="field">
             <span>
-              수락 확인 제목 ({invite.text.yesTitle.length}/{LIMITS.yesTitle})
+              {ui.fieldYesTitle} ({ui.fieldCount(invite.text.yesTitle.length, LIMITS.yesTitle)})
             </span>
             <input
               value={invite.text.yesTitle}
@@ -361,7 +394,8 @@ export default function EditorPage() {
           </label>
           <label className="field">
             <span>
-              수락 확인 부제 ({invite.text.yesDescription.length}/{LIMITS.yesDescription})
+              {ui.fieldYesDescription} (
+              {ui.fieldCount(invite.text.yesDescription.length, LIMITS.yesDescription)})
             </span>
             <input
               value={invite.text.yesDescription}
@@ -371,7 +405,8 @@ export default function EditorPage() {
           </label>
           <label className="field">
             <span>
-              거절 제목 ({invite.text.rejectTitle.length}/{LIMITS.rejectTitle})
+              {ui.fieldRejectTitle} (
+              {ui.fieldCount(invite.text.rejectTitle.length, LIMITS.rejectTitle)})
             </span>
             <input
               value={invite.text.rejectTitle}
@@ -381,7 +416,8 @@ export default function EditorPage() {
           </label>
           <label className="field">
             <span>
-              거절 설명 ({invite.text.rejectDescription.length}/{LIMITS.rejectDescription})
+              {ui.fieldRejectDescription} (
+              {ui.fieldCount(invite.text.rejectDescription.length, LIMITS.rejectDescription)})
             </span>
             <input
               value={invite.text.rejectDescription}
@@ -391,7 +427,8 @@ export default function EditorPage() {
           </label>
           <label className="field">
             <span>
-              마지막 편지 ({invite.text.finalLetter.length}/{LIMITS.finalLetter})
+              {ui.fieldFinalLetter} (
+              {ui.fieldCount(invite.text.finalLetter.length, LIMITS.finalLetter)})
             </span>
             <textarea
               value={invite.text.finalLetter}
@@ -403,89 +440,34 @@ export default function EditorPage() {
         </section>
 
         <section className="editor-section">
-          <h2>가능한 날짜와 시간 (최대 {LIMITS.maxDates}일)</h2>
+          <h2>{ui.sectionSchedule(LIMITS.maxDates)}</h2>
           {invite.schedules.map((s, i) => (
-            <div key={i} className="schedule-editor">
-              <div className="schedule-editor-head">
-                <input
-                  type="date"
-                  value={s.date}
-                  min={today}
-                  onChange={(e) => setDate(i, e.target.value)}
-                  aria-label={`날짜 ${i + 1}`}
-                />
-                <button
-                  type="button"
-                  className="btn-remove"
-                  aria-label="날짜 삭제"
-                  onClick={() => removeDate(i)}
-                >
-                  ✕
-                </button>
-              </div>
-              <div className="quick-action-row">
-                {TIME_PRESETS.map((preset) => (
-                  <button
-                    key={preset.id}
-                    type="button"
-                    className={`option-chip small${
-                      isSameTimes(s.times, preset.times.slice(0, LIMITS.maxTimesPerDate))
-                        ? " selected"
-                        : ""
-                    }`}
-                    onClick={() => applyPreset(i, preset.times)}
-                  >
-                    {preset.label}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  className="option-chip small"
-                  onClick={() => clearTimes(i)}
-                >
-                  시간 초기화
-                </button>
-              </div>
-              <div className="time-grid">
-                {TIME_OPTIONS.map((t) => (
-                  <button
-                    key={t}
-                    type="button"
-                    className={`time-chip${s.times.includes(t) ? " selected" : ""}`}
-                    aria-pressed={s.times.includes(t)}
-                    onClick={() => toggleTime(i, t)}
-                  >
-                    {t}
-                  </button>
-                ))}
-              </div>
-              <div className="quick-action-row">
-                <button
-                  type="button"
-                  className="btn btn-secondary schedule-copy-btn"
-                  disabled={invite.schedules.length < 2 || s.times.length === 0}
-                  onClick={() => copyTimesToOtherDates(i)}
-                >
-                  이 시간대를 다른 날짜에 복사
-                </button>
-              </div>
-              <p className="hint">
-                선택한 시간 {s.times.length}/{LIMITS.maxTimesPerDate}
-                {s.times.length > 0 ? ` · ${s.times.join(", ")}` : ""}
-              </p>
-            </div>
+            <ScheduleEditorRow
+              key={i}
+              schedule={s}
+              index={i}
+              today={today}
+              canCopy={invite.schedules.length >= 2}
+              ui={ui}
+              timePresetLabels={timePresetLabels}
+              onDateChange={(date) => setDate(i, date)}
+              onRemove={() => removeDate(i)}
+              onApplyPreset={(times) => applyPreset(i, times)}
+              onClearTimes={() => clearTimes(i)}
+              onAddTime={(time) => addTime(i, time)}
+              onRemoveTime={(time) => removeTime(i, time)}
+              onCopyTimes={() => copyTimesToOtherDates(i)}
+            />
           ))}
           {invite.schedules.length < LIMITS.maxDates && (
             <button type="button" className="btn btn-secondary" onClick={addDate}>
-              + 날짜 추가
+              {ui.addDate}
             </button>
           )}
         </section>
 
         <section className="editor-section">
-          <h2>
-            음식 후보 ({LIMITS.minFoods}~{LIMITS.maxFoods}개)
-          </h2>
+          <h2>{ui.sectionFoods(LIMITS.minFoods, LIMITS.maxFoods)}</h2>
           {invite.foods.map((f, i) => (
             <div
               key={i}
@@ -495,7 +477,7 @@ export default function EditorPage() {
                 type="button"
                 className={`food-slot-button${i === activeFoodIndex ? " active" : ""}`}
                 aria-pressed={i === activeFoodIndex}
-                aria-label={`음식 ${i + 1}번 편집 선택`}
+                aria-label={ui.foodSlotAriaLabel(i + 1)}
                 onClick={() => setActiveFoodIndex(i)}
               >
                 {i + 1}
@@ -504,22 +486,22 @@ export default function EditorPage() {
                 className="food-icon-input"
                 value={f.icon}
                 maxLength={4}
-                aria-label={`음식 ${i + 1} 이모지`}
+                aria-label={ui.foodEmojiAriaLabel(i + 1)}
                 onFocus={() => setActiveFoodIndex(i)}
                 onChange={(e) => setFood(i, "icon", e.target.value)}
               />
               <input
                 value={f.label}
                 maxLength={LIMITS.foodLabel}
-                placeholder="메뉴 이름"
-                aria-label={`음식 ${i + 1} 이름`}
+                placeholder={ui.foodNamePlaceholder}
+                aria-label={ui.foodNameAriaLabel(i + 1)}
                 onFocus={() => setActiveFoodIndex(i)}
                 onChange={(e) => setFood(i, "label", e.target.value)}
               />
               <button
                 type="button"
                 className="btn-remove"
-                aria-label="음식 삭제"
+                aria-label={ui.removeFoodAriaLabel}
                 disabled={invite.foods.length <= LIMITS.minFoods}
                 onClick={() => removeFood(i)}
               >
@@ -529,20 +511,18 @@ export default function EditorPage() {
           ))}
           {invite.foods.length < LIMITS.maxFoods && (
             <button type="button" className="btn btn-secondary" onClick={addFood}>
-              + 음식 추가
+              {ui.addFood}
             </button>
           )}
           <div className="food-preset-panel">
             <div className="food-preset-head">
               <div>
-                <h3 className="food-preset-title">
-                  {LANGUAGE_LABELS[invite.language]} 추천 메뉴
-                </h3>
-                <p className="hint">
-                  위에서 채울 칸을 고른 뒤, 아래 메뉴를 눌러 빠르게 넣을 수 있어요.
-                </p>
+                <h3 className="food-preset-title">{ui.recommendedMenusTitle}</h3>
+                <p className="hint">{ui.recommendedMenusHint}</p>
               </div>
-              <span className="food-slot-badge">현재 {activeFoodIndex + 1}번 칸</span>
+              <span className="food-slot-badge">
+                {ui.currentSlotBadge(activeFoodIndex + 1)}
+              </span>
             </div>
             <div className="food-preset-grid">
               {presetFoods.map((preset) => {
@@ -569,7 +549,7 @@ export default function EditorPage() {
         </section>
 
         <section className="editor-section">
-          <h2>공유 링크</h2>
+          <h2>{ui.sectionShareLink}</h2>
           {hasErrors && (
             <ul className="error-list" role="alert">
               {errors.map((e) => (
@@ -579,12 +559,10 @@ export default function EditorPage() {
           )}
           {urlTooLong && (
             <p className="error-list" role="alert">
-              링크가 너무 깁니다. 긴 문구나 이미지 URL을 줄여 주세요.
+              {ui.errorUrlTooLong}
             </p>
           )}
-          {urlWarning && (
-            <p className="hint">링크가 깁니다. 일부 앱에서 잘릴 수 있어요.</p>
-          )}
+          {urlWarning && <p className="hint">{ui.warningUrlLong}</p>}
           <div className="link-actions">
             <button
               type="button"
@@ -592,7 +570,7 @@ export default function EditorPage() {
               disabled={!inviteUrl || urlTooLong}
               onClick={copyLink}
             >
-              {copied ? "복사 완료! 💗" : "초대장 링크 복사"}
+              {copied ? ui.copied : ui.copyLink}
             </button>
             <button
               type="button"
@@ -602,7 +580,7 @@ export default function EditorPage() {
                 setPreviewKey((k) => k + 1);
               }}
             >
-              {showPreview ? "미리보기 닫기" : "미리보기"}
+              {showPreview ? ui.previewClose : ui.previewOpen}
             </button>
           </div>
           {inviteUrl && !urlTooLong && (
@@ -612,13 +590,10 @@ export default function EditorPage() {
               value={inviteUrl}
               rows={3}
               onFocus={(e) => e.currentTarget.select()}
-              aria-label="초대장 링크"
+              aria-label={ui.shareLinkAriaLabel}
             />
           )}
-          <p className="hint">
-            이 링크에는 초대장 내용이 그대로 담겨 있어요. 이름, 전화번호 같은
-            민감한 정보는 넣지 마세요.
-          </p>
+          <p className="hint">{ui.shareLinkHint}</p>
         </section>
       </div>
 
@@ -627,6 +602,63 @@ export default function EditorPage() {
           <InviteRenderer key={previewKey} data={previewData} />
         </div>
       </aside>
+
+      {showUrlModal && (
+        <div
+          className="modal-overlay"
+          role="presentation"
+          onClick={() => setShowUrlModal(false)}
+        >
+          <div
+            className="modal-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="url-modal-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 id="url-modal-title" className="modal-title">
+              {ui.urlModalTitle}
+            </h3>
+            <p className="modal-hint">{ui.urlModalHint}</p>
+            <label className="field">
+              <span>{ui.urlModalFieldLabel}</span>
+              <input
+                ref={urlInputRef}
+                type="url"
+                value={urlDraft}
+                maxLength={LIMITS.imageUrl}
+                placeholder="https://example.com/photo.jpg"
+                onChange={(e) => setUrlDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && urlDraftValid) applyUrlDraft();
+                }}
+              />
+            </label>
+            {urlDraft.trim() && !urlDraftValid && (
+              <p className="modal-error" role="alert">
+                {ui.urlModalError}
+              </p>
+            )}
+            <div className="modal-actions">
+              <button
+                type="button"
+                className="btn btn-secondary"
+                onClick={() => setShowUrlModal(false)}
+              >
+                {ui.cancel}
+              </button>
+              <button
+                type="button"
+                className="btn btn-primary"
+                disabled={!urlDraftValid}
+                onClick={applyUrlDraft}
+              >
+                {ui.apply}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   );
 }

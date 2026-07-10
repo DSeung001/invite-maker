@@ -10,10 +10,17 @@ import { isSupportedLanguage } from "./invite-i18n";
 const SAMPLE_IDS = new Set<string>(SAMPLE_IMAGE_IDS);
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}$/;
+const IMAGE_EXT_RE = /\.(png|jpe?g|gif|webp|svg|avif|bmp)(\?.*)?$/i;
 
 export function isValidImageUrl(url: string): boolean {
   if (!url || url.length > LIMITS.imageUrl) return false;
-  return /^https:\/\//i.test(url.trim());
+  const trimmed = url.trim();
+  if (!/^https:\/\//i.test(trimmed)) return false;
+  try {
+    return IMAGE_EXT_RE.test(new URL(trimmed).pathname);
+  } catch {
+    return false;
+  }
 }
 
 export function sanitizeImage(image: unknown): InviteImage {

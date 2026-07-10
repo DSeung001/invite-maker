@@ -1,0 +1,46 @@
+---
+description: 프론트엔드 UI 다국어화 규칙 — 사용자에게 보이는 모든 문자열은 i18n 사전 사용
+globs: app/**/*.tsx,components/**/*.tsx
+alwaysApply: false
+---
+
+# 프론트엔드 i18n
+
+사용자에게 보이는 모든 문자열은 컴포넌트에 하드코딩하지 않습니다.
+
+대상: 버튼, 라벨, 힌트, 에러 메시지, `aria-label`, `placeholder`, `alt`, 모달 제목/본문.
+
+## 번역 위치
+
+[`lib/invite-i18n.ts`](lib/invite-i18n.ts)에 `Record<InviteLanguage, ...>` 사전으로 추가합니다.
+
+- 에디터 UI → `EDITOR_UI[invite.language]`
+- 초대장 뷰어 공유 UI → `RESULT_SHARE_UI[data.language]`
+- 초대장 본문 → `TEXT_PRESETS` / `invite.text`
+- 시간 프리셋 라벨 → `TIME_PRESET_LABELS[language]`
+
+## 언어 기준
+
+| 화면 | 언어 소스 |
+|------|-----------|
+| 에디터 (`app/page.tsx`) | `invite.language` |
+| 초대장 뷰어 (`InviteRenderer` 등) | `data.language` |
+
+## 새 문구 추가 시
+
+ko, en, ja, zh 네 언어를 **동시에** 추가합니다.
+
+동적 값(개수, 슬롯 번호 등)은 사전에 함수로 정의합니다.
+
+```typescript
+// ✅ GOOD
+fieldCount: (current, max) => `${current}/${max}`,
+<span>{ui.fieldQuestion} ({ui.fieldCount(len, LIMITS.question)})</span>
+
+// ❌ BAD
+<span>메인 질문 ({len}/{LIMITS.question})</span>
+```
+
+## 접근성
+
+스크린리더로 읽히는 `aria-label`·`alt`도 동일한 i18n 사전을 사용합니다.
