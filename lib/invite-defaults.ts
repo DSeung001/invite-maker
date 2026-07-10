@@ -79,6 +79,9 @@ export const FOOD_PRESETS: Record<InviteLanguage, FoodOption[]> = {
     { icon: "🍰", label: "케이크" },
     { icon: "🥗", label: "샐러드" },
     { icon: "🍛", label: "카레" },
+    { icon: "🥪", label: "샌드위치" },
+    { icon: "🍙", label: "김밥" },
+    { icon: "🥞", label: "팬케이크" },
   ],
   en: [
     { icon: "🍕", label: "Pizza" },
@@ -93,6 +96,9 @@ export const FOOD_PRESETS: Record<InviteLanguage, FoodOption[]> = {
     { icon: "🍰", label: "Cake" },
     { icon: "🥗", label: "Salad" },
     { icon: "🍛", label: "Curry" },
+    { icon: "🥪", label: "Sandwich" },
+    { icon: "🍙", label: "Kimbap" },
+    { icon: "🥞", label: "Pancakes" },
   ],
   ja: [
     { icon: "🍕", label: "ピザ" },
@@ -107,6 +113,9 @@ export const FOOD_PRESETS: Record<InviteLanguage, FoodOption[]> = {
     { icon: "🍰", label: "ケーキ" },
     { icon: "🥗", label: "サラダ" },
     { icon: "🍛", label: "カレー" },
+    { icon: "🥪", label: "サンドイッチ" },
+    { icon: "🍙", label: "キンパプ" },
+    { icon: "🥞", label: "パンケーキ" },
   ],
   zh: [
     { icon: "🍕", label: "披萨" },
@@ -121,6 +130,9 @@ export const FOOD_PRESETS: Record<InviteLanguage, FoodOption[]> = {
     { icon: "🍰", label: "蛋糕" },
     { icon: "🥗", label: "沙拉" },
     { icon: "🍛", label: "咖喱饭" },
+    { icon: "🥪", label: "三明治" },
+    { icon: "🍙", label: "紫菜包饭" },
+    { icon: "🥞", label: "松饼" },
   ],
 };
 
