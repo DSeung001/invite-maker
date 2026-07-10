@@ -3,10 +3,16 @@
 import { useEffect, useMemo, useState } from "react";
 import InviteRenderer from "@/components/InviteRenderer";
 import { encodeInvite } from "@/lib/invite-codec";
-import { createDefaultInvite, TEXT_PRESETS } from "@/lib/invite-defaults";
+import {
+  createDefaultFoods,
+  createDefaultInvite,
+  FOOD_PRESETS,
+  TEXT_PRESETS,
+} from "@/lib/invite-defaults";
 import { LANGUAGE_LABELS, SUPPORTED_LANGUAGES } from "@/lib/invite-i18n";
 import { isValidImageUrl, normalizeSchedules } from "@/lib/invite-validation";
 import {
+  FoodOption,
   InviteData,
   InviteLanguage,
   LIMITS,
@@ -21,11 +27,42 @@ const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
 });
 const SAMPLE_PAGE_SIZE = 6;
 
+const TIME_INDEX = new Map(TIME_OPTIONS.map((t, i) => [t, i]));
+
+function createTimeRange(start: string, end: string): string[] {
+  const startIndex = TIME_INDEX.get(start);
+  const endIndex = TIME_INDEX.get(end);
+  if (startIndex === undefined || endIndex === undefined || startIndex > endIndex) {
+    return [];
+  }
+  return TIME_OPTIONS.slice(startIndex, endIndex + 1);
+}
+
+const TIME_PRESETS = [
+  { id: "lunch", label: "점심", times: createTimeRange("11:30", "14:00") },
+  { id: "afternoon", label: "오후", times: createTimeRange("14:00", "17:00") },
+  { id: "evening", label: "저녁", times: createTimeRange("18:00", "21:00") },
+] as const;
+
+function isSameTimes(a: string[], b: string[]): boolean {
+  return a.length === b.length && a.every((time, index) => time === b[index]);
+}
+
 function todayString(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
     d.getDate()
   ).padStart(2, "0")}`;
+}
+
+function areFoodListsEqual(left: FoodOption[], right: FoodOption[]): boolean {
+  return (
+    left.length === right.length &&
+    left.every(
+      (food, index) =>
+        food.icon === right[index]?.icon && food.label === right[index]?.label
+    )
+  );
 }
 
 export default function EditorPage() {
@@ -35,6 +72,7 @@ export default function EditorPage() {
   const [copied, setCopied] = useState(false);
   const [previewKey, setPreviewKey] = useState(0);
   const [samplePage, setSamplePage] = useState(1);
+  const [activeFoodIndex, setActiveFoodIndex] = useState(0);
 
   const update = (patch: Partial<InviteData>) => {
     setInvite((prev) => ({ ...prev, ...patch }));
@@ -49,7 +87,17 @@ export default function EditorPage() {
   };
 
   const setLanguage = (language: InviteLanguage) => {
-    update({ language, text: { ...TEXT_PRESETS[language] } });
+    const nextDefaultFoods = createDefaultFoods(language);
+    const shouldRefreshFoods = areFoodListsEqual(
+      invite.foods,
+      createDefaultFoods(invite.language)
+    );
+
+    update({
+      language,
+      text: { ...TEXT_PRESETS[language] },
+      ...(shouldRefreshFoods ? { foods: nextDefaultFoods } : {}),
+    });
   };
 
   // --- schedules ---
@@ -81,21 +129,63 @@ export default function EditorPage() {
     update({ schedules });
   };
 
+  const applyPreset = (index: number, presetTimes: string[]) => {
+    update({
+      schedules: invite.schedules.map((s, i) =>
+        i === index
+          ? { ...s, times: presetTimes.slice(0, LIMITS.maxTimesPerDate) }
+          : s
+      ),
+    });
+  };
+
+  const clearTimes = (index: number) => {
+    update({
+      schedules: invite.schedules.map((s, i) => (i === index ? { ...s, times: [] } : s)),
+    });
+  };
+
+  const copyTimesToOtherDates = (sourceIndex: number) => {
+    const source = invite.schedules[sourceIndex];
+    if (!source || source.times.length === 0 || invite.schedules.length < 2) return;
+    const times = [...source.times].slice(0, LIMITS.maxTimesPerDate);
+    update({
+      schedules: invite.schedules.map((s, i) =>
+        i === sourceIndex ? s : { ...s, times: [...times] }
+      ),
+    });
+  };
+
   // --- foods ---
   const setFood = (index: number, field: "icon" | "label", value: string) => {
+    setActiveFoodIndex(index);
     update({
       foods: invite.foods.map((f, i) => (i === index ? { ...f, [field]: value } : f)),
     });
   };
 
+  const applyFoodPreset = (preset: FoodOption) => {
+    update({
+      foods: invite.foods.map((food, index) =>
+        index === activeFoodIndex ? { ...preset } : food
+      ),
+    });
+  };
+
   const addFood = () => {
     if (invite.foods.length >= LIMITS.maxFoods) return;
+    setActiveFoodIndex(invite.foods.length);
     update({ foods: [...invite.foods, { icon: "🍽️", label: "" }] });
   };
 
   const removeFood = (index: number) => {
     if (invite.foods.length <= LIMITS.minFoods) return;
-    update({ foods: invite.foods.filter((_, i) => i !== index) });
+    const nextFoods = invite.foods.filter((_, i) => i !== index);
+    setActiveFoodIndex((current) => {
+      if (current > index) return current - 1;
+      return Math.min(current, nextFoods.length - 1);
+    });
+    update({ foods: nextFoods });
   };
 
   // --- validation & link ---
@@ -158,6 +248,8 @@ export default function EditorPage() {
       setSamplePage(targetPage);
     }
   }, [invite.image, samplePage]);
+  const activeFood = invite.foods[activeFoodIndex];
+  const presetFoods = FOOD_PRESETS[invite.language];
 
   return (
     <main className="editor-layout">
@@ -331,6 +423,29 @@ export default function EditorPage() {
                   ✕
                 </button>
               </div>
+              <div className="quick-action-row">
+                {TIME_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    className={`option-chip small${
+                      isSameTimes(s.times, preset.times.slice(0, LIMITS.maxTimesPerDate))
+                        ? " selected"
+                        : ""
+                    }`}
+                    onClick={() => applyPreset(i, preset.times)}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  className="option-chip small"
+                  onClick={() => clearTimes(i)}
+                >
+                  시간 초기화
+                </button>
+              </div>
               <div className="time-grid">
                 {TIME_OPTIONS.map((t) => (
                   <button
@@ -344,8 +459,19 @@ export default function EditorPage() {
                   </button>
                 ))}
               </div>
+              <div className="quick-action-row">
+                <button
+                  type="button"
+                  className="btn btn-secondary schedule-copy-btn"
+                  disabled={invite.schedules.length < 2 || s.times.length === 0}
+                  onClick={() => copyTimesToOtherDates(i)}
+                >
+                  이 시간대를 다른 날짜에 복사
+                </button>
+              </div>
               <p className="hint">
                 선택한 시간 {s.times.length}/{LIMITS.maxTimesPerDate}
+                {s.times.length > 0 ? ` · ${s.times.join(", ")}` : ""}
               </p>
             </div>
           ))}
@@ -361,12 +487,25 @@ export default function EditorPage() {
             음식 후보 ({LIMITS.minFoods}~{LIMITS.maxFoods}개)
           </h2>
           {invite.foods.map((f, i) => (
-            <div key={i} className="food-editor-row">
+            <div
+              key={i}
+              className={`food-editor-row${i === activeFoodIndex ? " active" : ""}`}
+            >
+              <button
+                type="button"
+                className={`food-slot-button${i === activeFoodIndex ? " active" : ""}`}
+                aria-pressed={i === activeFoodIndex}
+                aria-label={`음식 ${i + 1}번 편집 선택`}
+                onClick={() => setActiveFoodIndex(i)}
+              >
+                {i + 1}
+              </button>
               <input
                 className="food-icon-input"
                 value={f.icon}
                 maxLength={4}
                 aria-label={`음식 ${i + 1} 이모지`}
+                onFocus={() => setActiveFoodIndex(i)}
                 onChange={(e) => setFood(i, "icon", e.target.value)}
               />
               <input
@@ -374,6 +513,7 @@ export default function EditorPage() {
                 maxLength={LIMITS.foodLabel}
                 placeholder="메뉴 이름"
                 aria-label={`음식 ${i + 1} 이름`}
+                onFocus={() => setActiveFoodIndex(i)}
                 onChange={(e) => setFood(i, "label", e.target.value)}
               />
               <button
@@ -392,6 +532,41 @@ export default function EditorPage() {
               + 음식 추가
             </button>
           )}
+          <div className="food-preset-panel">
+            <div className="food-preset-head">
+              <div>
+                <h3 className="food-preset-title">
+                  {LANGUAGE_LABELS[invite.language]} 예비 목록
+                </h3>
+                <p className="hint">
+                  {activeFoodIndex + 1}번 후보를 선택한 뒤 아래 음식으로 빠르게 채울 수
+                  있어요.
+                </p>
+              </div>
+              <span className="food-slot-badge">현재 {activeFoodIndex + 1}번 후보</span>
+            </div>
+            <div className="food-preset-grid">
+              {presetFoods.map((preset) => {
+                const isSelected =
+                  activeFood?.icon === preset.icon && activeFood?.label === preset.label;
+
+                return (
+                  <button
+                    key={`${preset.icon}-${preset.label}`}
+                    type="button"
+                    className={`food-preset-chip${isSelected ? " selected" : ""}`}
+                    aria-pressed={isSelected}
+                    onClick={() => applyFoodPreset(preset)}
+                  >
+                    <span className="food-preset-icon" aria-hidden>
+                      {preset.icon}
+                    </span>
+                    <span className="food-preset-label">{preset.label}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
         </section>
 
         <section className="editor-section">
