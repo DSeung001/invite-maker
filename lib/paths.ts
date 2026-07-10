@@ -4,5 +4,5 @@ export function assetPath(path: string): string {
 }
 
 export function sampleImageSrc(id: string): string {
-  return assetPath(`/images/samples/${id}.svg`);
+  return assetPath(`/images/samples/${id}.png`);
 }

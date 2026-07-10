@@ -435,6 +435,20 @@ p.error-list {
   gap: 10px;
 }
 
+.sample-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.sample-page-indicator {
+  min-width: 48px;
+  text-align: center;
+  font-weight: 600;
+  color: var(--secondary-color);
+}
+
 .sample-thumb {
   border: 3px solid transparent;
   border-radius: 14px;
