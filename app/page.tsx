@@ -468,47 +468,51 @@ export default function EditorPage() {
 
         <section className="editor-section">
           <h2>{ui.sectionFoods(LIMITS.minFoods, LIMITS.maxFoods)}</h2>
-          {invite.foods.map((f, i) => (
-            <div
-              key={i}
-              className={`food-editor-row${i === activeFoodIndex ? " active" : ""}`}
-            >
-              <button
-                type="button"
-                className={`food-slot-button${i === activeFoodIndex ? " active" : ""}`}
-                aria-pressed={i === activeFoodIndex}
-                aria-label={ui.foodSlotAriaLabel(i + 1)}
+          <div
+            className="food-grid food-editor-grid"
+            role="group"
+            aria-label={ui.sectionFoods(LIMITS.minFoods, LIMITS.maxFoods)}
+          >
+            {invite.foods.map((f, i) => (
+              <div
+                key={i}
+                className={`food-card food-editor-card${i === activeFoodIndex ? " selected" : ""}`}
                 onClick={() => setActiveFoodIndex(i)}
               >
-                {i + 1}
-              </button>
-              <input
-                className="food-icon-input"
-                value={f.icon}
-                maxLength={4}
-                aria-label={ui.foodEmojiAriaLabel(i + 1)}
-                onFocus={() => setActiveFoodIndex(i)}
-                onChange={(e) => setFood(i, "icon", e.target.value)}
-              />
-              <input
-                value={f.label}
-                maxLength={LIMITS.foodLabel}
-                placeholder={ui.foodNamePlaceholder}
-                aria-label={ui.foodNameAriaLabel(i + 1)}
-                onFocus={() => setActiveFoodIndex(i)}
-                onChange={(e) => setFood(i, "label", e.target.value)}
-              />
-              <button
-                type="button"
-                className="btn-remove"
-                aria-label={ui.removeFoodAriaLabel}
-                disabled={invite.foods.length <= LIMITS.minFoods}
-                onClick={() => removeFood(i)}
-              >
-                ✕
-              </button>
-            </div>
-          ))}
+                <button
+                  type="button"
+                  className="food-editor-remove"
+                  aria-label={ui.removeFoodAriaLabel}
+                  disabled={invite.foods.length <= LIMITS.minFoods}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeFood(i);
+                  }}
+                >
+                  ✕
+                </button>
+                <input
+                  className="food-editor-icon"
+                  value={f.icon}
+                  maxLength={4}
+                  aria-label={ui.foodEmojiAriaLabel(i + 1)}
+                  onFocus={() => setActiveFoodIndex(i)}
+                  onChange={(e) => setFood(i, "icon", e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                />
+                <input
+                  className="food-editor-label"
+                  value={f.label}
+                  maxLength={LIMITS.foodLabel}
+                  placeholder={ui.foodNamePlaceholder}
+                  aria-label={ui.foodNameAriaLabel(i + 1)}
+                  onFocus={() => setActiveFoodIndex(i)}
+                  onChange={(e) => setFood(i, "label", e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                />
+              </div>
+            ))}
+          </div>
           {invite.foods.length < LIMITS.maxFoods && (
             <button type="button" className="btn btn-secondary" onClick={addFood}>
               {ui.addFood}

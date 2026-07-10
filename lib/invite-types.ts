@@ -75,4 +75,5 @@ export const SAMPLE_IMAGE_IDS = [
   "sample-12",
   "sample-13",
   "sample-14",
+  "sample-15",
 ] as const;
