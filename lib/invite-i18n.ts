@@ -394,8 +394,8 @@ export const RESULT_SHARE_UI: Record<
   }
 > = {
   ko: {
-    copy: "결과 복사",
-    share: "결과 공유",
+    copy: "답변 내용 복사하기",
+    share: "답변 내용 공유하기",
     copied: "복사했어요!",
     failed: "복사에 실패했어요. 아래 내용을 직접 복사해 주세요.",
     header: "데이트 약속 완료",
@@ -405,8 +405,8 @@ export const RESULT_SHARE_UI: Record<
     food: "음식",
   },
   en: {
-    copy: "Copy result",
-    share: "Share result",
+    copy: "Copy answer",
+    share: "Share answer",
     copied: "Copied!",
     failed: "Copy failed. Please copy the text below.",
     header: "Date confirmed",
@@ -416,8 +416,8 @@ export const RESULT_SHARE_UI: Record<
     food: "Food",
   },
   ja: {
-    copy: "結果をコピー",
-    share: "結果を共有",
+    copy: "回答内容をコピーする",
+    share: "回答内容を共有する",
     copied: "コピーしました",
     failed: "コピーに失敗しました。下のテキストをコピーしてください。",
     header: "デートの約束完了",
@@ -427,8 +427,8 @@ export const RESULT_SHARE_UI: Record<
     food: "食べ物",
   },
   zh: {
-    copy: "复制结果",
-    share: "分享结果",
+    copy: "复制回答内容",
+    share: "分享回答内容",
     copied: "已复制",
     failed: "复制失败，请复制下面的文本。",
     header: "约会已确认",
