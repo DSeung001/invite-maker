@@ -438,3 +438,12 @@ export const RESULT_SHARE_UI: Record<
     food: "食物",
   },
 };
+
+export const FEEDBACK_UI: Record<InviteLanguage, { label: string }> = {
+  ko: { label: "피드백 보내기" },
+  en: { label: "Send feedback" },
+  ja: { label: "フィードバックを送る" },
+  zh: { label: "发送反馈" },
+};
+
+export const FEEDBACK_FORM_URL = "https://naver.me/IDk6Q0Oj";

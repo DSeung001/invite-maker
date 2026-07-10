@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import DeveloperFeedback from "@/components/DeveloperFeedback";
 import InviteRenderer from "@/components/InviteRenderer";
 import ScheduleEditorRow from "@/components/ScheduleEditorRow";
 import { encodeInvite } from "@/lib/invite-codec";
@@ -599,6 +600,8 @@ export default function EditorPage() {
           )}
           <p className="hint">{ui.shareLinkHint}</p>
         </section>
+
+        <DeveloperFeedback language={invite.language} />
       </div>
 
       <aside className={`editor-preview${showPreview ? " open" : ""}`}>

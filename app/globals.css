@@ -69,6 +69,19 @@ h2 {
   padding: 24px 16px 48px;
 }
 
+.developer-feedback {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0 0;
+  padding-top: 8px;
+}
+
+.developer-feedback-link {
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
 /* ---------- Invite card ---------- */
 
 .invite-card {
