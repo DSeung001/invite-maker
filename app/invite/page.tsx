@@ -33,7 +33,7 @@ export default function InvitePage() {
 
   if (state.status === "missing") {
     return (
-      <main className="page-center">
+      <main className="page-center theme">
         <div className="invite-card">
           <h1 className="invite-title">초대장 정보를 찾을 수 없습니다.</h1>
           <p className="invite-subtitle">링크가 올바른지 확인해 주세요.</p>
@@ -44,7 +44,7 @@ export default function InvitePage() {
 
   if (state.status === "broken") {
     return (
-      <main className="page-center">
+      <main className="page-center theme">
         <div className="invite-card">
           <h1 className="invite-title">초대장 링크가 손상되었습니다.</h1>
           <p className="invite-subtitle">새로운 링크를 요청해 주세요.</p>
@@ -54,7 +54,7 @@ export default function InvitePage() {
   }
 
   return (
-    <main className="page-center">
+    <main className="page-center theme">
       <InviteRenderer data={state.data} />
     </main>
   );

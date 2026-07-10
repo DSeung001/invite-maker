@@ -410,7 +410,7 @@ export default function EditorPage() {
       </div>
 
       <aside className={`editor-preview${showPreview ? " open" : ""}`}>
-        <div className="preview-frame">
+        <div className="preview-frame theme">
           <InviteRenderer key={previewKey} data={previewData} />
         </div>
       </aside>

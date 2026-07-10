@@ -1,4 +1,20 @@
+/* Neutral defaults — used by the editor UI. */
 :root {
+  --bg-gradient: #f6f7f8;
+  --card-bg: #ffffff;
+  --title-color: #1f2430;
+  --body-color: #4b5563;
+  --primary-gradient: linear-gradient(135deg, #3f4756 0%, #23293a 100%);
+  --secondary-bg: #e8eaef;
+  --secondary-color: #374151;
+  --accent: #3f4756;
+  --border-soft: #e2e5ea;
+  --selected-bg: #eef0f4;
+  --radius-card: 28px;
+}
+
+/* Romantic theme — applied only to the invite screen and the preview. */
+.theme {
   --bg-gradient: radial-gradient(circle at top, #f8e9f5, transparent 50%),
     linear-gradient(180deg, #f5dcec 0%, #e9dff8 100%);
   --card-bg: #fffdfe;
@@ -9,7 +25,8 @@
   --secondary-color: #5d4a8a;
   --accent: #e4568f;
   --border-soft: #f0d8e8;
-  --radius-card: 28px;
+  --selected-bg: #fdeef5;
+  background: var(--bg-gradient);
 }
 
 * {
@@ -34,8 +51,12 @@ body {
 
 h1,
 h2 {
-  font-family: Georgia, "Times New Roman", "Nanum Myeongjo", serif;
   color: var(--title-color);
+}
+
+.theme h1,
+.theme h2 {
+  font-family: Georgia, "Times New Roman", "Nanum Myeongjo", serif;
 }
 
 /* ---------- Layout ---------- */
@@ -129,7 +150,7 @@ h2 {
 .btn-primary {
   background: var(--primary-gradient);
   color: #fff;
-  box-shadow: 0 6px 16px rgba(228, 86, 143, 0.35);
+  box-shadow: 0 5px 14px rgba(0, 0, 0, 0.16);
 }
 
 .btn-primary:not(:disabled):hover {
@@ -156,8 +177,8 @@ h2 {
 
 .btn-remove {
   border: none;
-  background: #f6e3ee;
-  color: #a4527e;
+  background: #eceef2;
+  color: #5b6472;
   border-radius: 10px;
   width: 36px;
   height: 36px;
@@ -203,7 +224,7 @@ h2 {
 
 .option-chip.selected {
   border-color: var(--accent);
-  background: #fdeef5;
+  background: var(--selected-bg);
   color: var(--title-color);
   font-weight: 600;
 }
@@ -238,7 +259,7 @@ h2 {
 
 .food-card.selected {
   border-color: var(--accent);
-  background: #fdeef5;
+  background: var(--selected-bg);
   transform: scale(1.04);
 }
 
@@ -348,7 +369,7 @@ h2 {
   background: var(--card-bg);
   border-radius: 20px;
   padding: 20px;
-  box-shadow: 0 6px 18px rgba(140, 80, 120, 0.1);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -484,7 +505,7 @@ p.error-list {
 
 .time-chip.selected {
   border-color: var(--accent);
-  background: #fdeef5;
+  background: var(--selected-bg);
   color: var(--title-color);
   font-weight: 600;
 }
