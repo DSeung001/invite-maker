@@ -7,6 +7,10 @@ import {
   POINTER_ESCAPE_RADIUS,
 } from "@/lib/invite-types";
 
+const MOVE_COOLDOWN_MS = 150;
+const FLEE_DISTANCE_MIN = 80;
+const FLEE_DISTANCE_MAX = 140;
+
 type Props = {
   label: string;
   /** Bounding element the button must stay inside (the action area of the card). */
@@ -20,13 +24,20 @@ type Props = {
  *   then becomes clickable.
  * - Pointer (desktop): jumps away when the cursor gets within POINTER_ESCAPE_RADIUS,
  *   for at most DESKTOP_ESCAPE_DURATION_MS after the first jump, then stays put.
+ * Movement uses transform so the flex slot (and the Yes button) stay fixed.
  */
 export default function EscapeButton({ label, boundsRef, onReject }: Props) {
   const buttonRef = useRef<HTMLButtonElement>(null);
-  const [offset, setOffset] = useState<{ x: number; y: number } | null>(null);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const offsetRef = useRef(offset);
   const tapCountRef = useRef(0);
   const firstMoveAtRef = useRef<number | null>(null);
+  const lastMoveAtRef = useRef(0);
   const reducedMotionRef = useRef(false);
+
+  useEffect(() => {
+    offsetRef.current = offset;
+  }, [offset]);
 
   useEffect(() => {
     reducedMotionRef.current = window.matchMedia(
@@ -38,34 +49,88 @@ export default function EscapeButton({ label, boundsRef, onReject }: Props) {
     firstMoveAtRef.current !== null &&
     Date.now() - firstMoveAtRef.current > DESKTOP_ESCAPE_DURATION_MS;
 
-  const moveButton = useCallback(() => {
-    const button = buttonRef.current;
-    const bounds = boundsRef.current;
-    if (!button || !bounds) return;
+  const moveButton = useCallback(
+    (pointer?: { x: number; y: number }) => {
+      const button = buttonRef.current;
+      const bounds = boundsRef.current;
+      if (!button || !bounds) return;
 
-    try {
-      const boundsRect = bounds.getBoundingClientRect();
-      const btnRect = button.getBoundingClientRect();
-      const maxX = boundsRect.width - btnRect.width;
-      const maxY = boundsRect.height - btnRect.height;
-      if (maxX <= 0 && maxY <= 0) return;
+      const now = Date.now();
+      if (now - lastMoveAtRef.current < MOVE_COOLDOWN_MS) return;
 
-      // Random position inside the bounds, biased away from current spot.
-      for (let attempt = 0; attempt < 8; attempt++) {
-        const x = Math.random() * Math.max(maxX, 0);
-        const y = Math.random() * Math.max(maxY, 0);
-        const currentX = btnRect.left - boundsRect.left;
-        const currentY = btnRect.top - boundsRect.top;
-        const dist = Math.hypot(x - currentX, y - currentY);
-        if (dist > btnRect.width * 0.8 || attempt === 7) {
-          setOffset({ x, y });
-          return;
+      try {
+        const boundsRect = bounds.getBoundingClientRect();
+        const btnRect = button.getBoundingClientRect();
+        const current = offsetRef.current;
+
+        // Untransformed origin of the button within bounds.
+        const originLeft = btnRect.left - boundsRect.left - current.x;
+        const originTop = btnRect.top - boundsRect.top - current.y;
+        const maxX = boundsRect.width - btnRect.width;
+        const maxY = boundsRect.height - btnRect.height;
+        if (maxX <= 0 && maxY <= 0) return;
+
+        const cx = btnRect.left + btnRect.width / 2;
+        const cy = btnRect.top + btnRect.height / 2;
+
+        let dirX: number;
+        let dirY: number;
+        if (pointer) {
+          dirX = cx - pointer.x;
+          dirY = cy - pointer.y;
+        } else {
+          const angle = Math.random() * Math.PI * 2;
+          dirX = Math.cos(angle);
+          dirY = Math.sin(angle);
         }
+
+        const len = Math.hypot(dirX, dirY);
+        if (len < 0.001) {
+          const angle = Math.random() * Math.PI * 2;
+          dirX = Math.cos(angle);
+          dirY = Math.sin(angle);
+        } else {
+          dirX /= len;
+          dirY /= len;
+        }
+
+        const distance =
+          FLEE_DISTANCE_MIN +
+          Math.random() * (FLEE_DISTANCE_MAX - FLEE_DISTANCE_MIN);
+
+        let nextLeft = originLeft + current.x + dirX * distance;
+        let nextTop = originTop + current.y + dirY * distance;
+        nextLeft = Math.min(Math.max(0, nextLeft), Math.max(maxX, 0));
+        nextTop = Math.min(Math.max(0, nextTop), Math.max(maxY, 0));
+
+        // If clamped against an edge and still near the pointer, try a side step.
+        const nextCx = boundsRect.left + nextLeft + btnRect.width / 2;
+        const nextCy = boundsRect.top + nextTop + btnRect.height / 2;
+        if (
+          pointer &&
+          Math.hypot(pointer.x - nextCx, pointer.y - nextCy) <
+            POINTER_ESCAPE_RADIUS
+        ) {
+          const side = Math.random() < 0.5 ? 1 : -1;
+          const altX = -dirY * side;
+          const altY = dirX * side;
+          nextLeft = originLeft + current.x + altX * distance;
+          nextTop = originTop + current.y + altY * distance;
+          nextLeft = Math.min(Math.max(0, nextLeft), Math.max(maxX, 0));
+          nextTop = Math.min(Math.max(0, nextTop), Math.max(maxY, 0));
+        }
+
+        lastMoveAtRef.current = now;
+        setOffset({
+          x: nextLeft - originLeft,
+          y: nextTop - originTop,
+        });
+      } catch {
+        setOffset({ x: 0, y: 0 });
       }
-    } catch {
-      setOffset(null); // recover to the default position
-    }
-  }, [boundsRef]);
+    },
+    [boundsRef]
+  );
 
   // Desktop: escape when the pointer approaches.
   useEffect(() => {
@@ -77,7 +142,9 @@ export default function EscapeButton({ label, boundsRef, onReject }: Props) {
       const cy = rect.top + rect.height / 2;
       if (Math.hypot(e.clientX - cx, e.clientY - cy) < POINTER_ESCAPE_RADIUS) {
         if (firstMoveAtRef.current === null) firstMoveAtRef.current = Date.now();
-        if (!reducedMotionRef.current) moveButton();
+        if (!reducedMotionRef.current) {
+          moveButton({ x: e.clientX, y: e.clientY });
+        }
       }
     };
     window.addEventListener("mousemove", handler);
@@ -100,13 +167,8 @@ export default function EscapeButton({ label, boundsRef, onReject }: Props) {
       type="button"
       className="btn btn-secondary escape-btn"
       style={
-        offset
-          ? {
-              position: "absolute",
-              left: offset.x,
-              top: offset.y,
-              margin: 0,
-            }
+        offset.x !== 0 || offset.y !== 0
+          ? { transform: `translate(${offset.x}px, ${offset.y}px)` }
           : undefined
       }
       onClick={handleClick}

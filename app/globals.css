@@ -165,7 +165,8 @@ h2 {
 }
 
 .escape-btn {
-  transition: left 0.18s ease, top 0.18s ease;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
 }
 
 @media (prefers-reduced-motion: reduce) {

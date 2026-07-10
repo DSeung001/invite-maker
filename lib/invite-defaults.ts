@@ -9,8 +9,8 @@ import { LIMITS } from "./invite-types";
 export const TEXT_PRESETS: Record<InviteLanguage, InviteText> = {
   ko: {
     question: "있잖아... 나랑 데이트 갈래?",
-    yesLabel: "좋아!",
-    noLabel: "음...",
+    yesLabel: "좋아요",
+    noLabel: "싫어..",
     yesTitle: "헉, 진짜...?",
     yesDescription: "사실 거절하면 어쩌나 엄청 떨렸어...",
     nextButton: "그럼... 다음으로",
@@ -23,8 +23,8 @@ export const TEXT_PRESETS: Record<InviteLanguage, InviteText> = {
   },
   en: {
     question: "So... will you go on a date with me?",
-    yesLabel: "Yes!",
-    noLabel: "Hmm...",
+    yesLabel: "Like",
+    noLabel: "No..",
     yesTitle: "Wait... really?",
     yesDescription: "I was so nervous you'd say no...",
     nextButton: "Okay... next",
@@ -37,8 +37,8 @@ export const TEXT_PRESETS: Record<InviteLanguage, InviteText> = {
   },
   ja: {
     question: "あのね... 私とデートしない？",
-    yesLabel: "いいよ！",
-    noLabel: "うーん...",
+    yesLabel: "いいよ",
+    noLabel: "いや..",
     yesTitle: "え、ほんとに...？",
     yesDescription: "断られたらどうしようって、すごくドキドキしてた...",
     nextButton: "じゃあ... 次へ",
@@ -51,8 +51,8 @@ export const TEXT_PRESETS: Record<InviteLanguage, InviteText> = {
   },
   zh: {
     question: "那个... 你愿意和我约会吗？",
-    yesLabel: "好呀",
-    noLabel: "嗯...",
+    yesLabel: "喜欢",
+    noLabel: "不要..",
     yesTitle: "诶，真的？",
     yesDescription: "其实我一直在紧张你会不会拒绝...",
     nextButton: "那... 下一步",
