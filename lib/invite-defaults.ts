@@ -1,4 +1,10 @@
-import type { InviteData, InviteLanguage, InviteText } from "./invite-types";
+import type {
+  FoodOption,
+  InviteData,
+  InviteLanguage,
+  InviteText,
+} from "./invite-types";
+import { LIMITS } from "./invite-types";
 
 export const TEXT_PRESETS: Record<InviteLanguage, InviteText> = {
   ko: {
@@ -59,14 +65,70 @@ export const TEXT_PRESETS: Record<InviteLanguage, InviteText> = {
   },
 };
 
-export const DEFAULT_FOODS = [
-  { icon: "🍕", label: "피자" },
-  { icon: "🍣", label: "스시" },
-  { icon: "🍔", label: "버거" },
-  { icon: "🍝", label: "파스타" },
-  { icon: "🌮", label: "타코" },
-  { icon: "🍜", label: "라멘" },
-];
+export const FOOD_PRESETS: Record<InviteLanguage, FoodOption[]> = {
+  ko: [
+    { icon: "🍕", label: "피자" },
+    { icon: "🍣", label: "스시" },
+    { icon: "🍔", label: "버거" },
+    { icon: "🍝", label: "파스타" },
+    { icon: "🌮", label: "타코" },
+    { icon: "🍜", label: "라멘" },
+    { icon: "🍗", label: "치킨" },
+    { icon: "🥩", label: "스테이크" },
+    { icon: "🥟", label: "만두" },
+    { icon: "🍰", label: "케이크" },
+    { icon: "🥗", label: "샐러드" },
+    { icon: "🍛", label: "카레" },
+  ],
+  en: [
+    { icon: "🍕", label: "Pizza" },
+    { icon: "🍣", label: "Sushi" },
+    { icon: "🍔", label: "Burger" },
+    { icon: "🍝", label: "Pasta" },
+    { icon: "🌮", label: "Tacos" },
+    { icon: "🍜", label: "Ramen" },
+    { icon: "🍗", label: "Fried chicken" },
+    { icon: "🥩", label: "Steak" },
+    { icon: "🥟", label: "Dumplings" },
+    { icon: "🍰", label: "Cake" },
+    { icon: "🥗", label: "Salad" },
+    { icon: "🍛", label: "Curry" },
+  ],
+  ja: [
+    { icon: "🍕", label: "ピザ" },
+    { icon: "🍣", label: "寿司" },
+    { icon: "🍔", label: "バーガー" },
+    { icon: "🍝", label: "パスタ" },
+    { icon: "🌮", label: "タコス" },
+    { icon: "🍜", label: "ラーメン" },
+    { icon: "🍗", label: "チキン" },
+    { icon: "🥩", label: "ステーキ" },
+    { icon: "🥟", label: "餃子" },
+    { icon: "🍰", label: "ケーキ" },
+    { icon: "🥗", label: "サラダ" },
+    { icon: "🍛", label: "カレー" },
+  ],
+  zh: [
+    { icon: "🍕", label: "披萨" },
+    { icon: "🍣", label: "寿司" },
+    { icon: "🍔", label: "汉堡" },
+    { icon: "🍝", label: "意面" },
+    { icon: "🌮", label: "塔可" },
+    { icon: "🍜", label: "拉面" },
+    { icon: "🍗", label: "炸鸡" },
+    { icon: "🥩", label: "牛排" },
+    { icon: "🥟", label: "饺子" },
+    { icon: "🍰", label: "蛋糕" },
+    { icon: "🥗", label: "沙拉" },
+    { icon: "🍛", label: "咖喱饭" },
+  ],
+};
+
+export function createDefaultFoods(language: InviteLanguage): FoodOption[] {
+  return FOOD_PRESETS[language]
+    .slice(0, LIMITS.maxFoods)
+    .map((food) => ({ ...food }));
+}
 
 function futureDate(daysFromNow: number): string {
   const d = new Date();
@@ -87,7 +149,7 @@ export function createDefaultInvite(language: InviteLanguage = "ko"): InviteData
       { date: futureDate(7), times: ["17:00", "18:00", "19:00"] },
       { date: futureDate(8), times: ["13:00", "14:00"] },
     ],
-    foods: DEFAULT_FOODS.slice(0, 6),
+    foods: createDefaultFoods(language),
     timezone: "Asia/Seoul",
   };
 }
