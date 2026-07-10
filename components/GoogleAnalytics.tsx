@@ -9,13 +9,10 @@ export default function GoogleAnalytics() {
   const pathname = usePathname();
 
   useEffect(() => {
-    if (!GA_MEASUREMENT_ID) return;
     const query = window.location.search;
     const url = query ? `${pathname}${query}` : pathname;
     pageview(url);
   }, [pathname]);
-
-  if (!GA_MEASUREMENT_ID) return null;
 
   return (
     <>

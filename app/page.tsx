@@ -18,7 +18,7 @@ import {
   LIMITS,
   SAMPLE_IMAGE_IDS,
 } from "@/lib/invite-types";
-import { sampleImageSrc } from "@/lib/paths";
+import { assetPath, sampleImageSrc } from "@/lib/paths";
 
 const TIME_OPTIONS = Array.from({ length: 48 }, (_, i) => {
   const h = String(Math.floor(i / 2)).padStart(2, "0");
@@ -209,9 +209,8 @@ export default function EditorPage() {
 
   const hasErrors = errors.length > 0;
   const inviteUrl = useMemo(() => {
-    if (hasErrors || typeof window === "undefined") return null;
-    const base = `${window.location.origin}${window.location.pathname.replace(/\/$/, "")}`;
-    return `${base}/invite/#d=${encodeInvite(cleanedInvite)}`;
+    if (hasErrors) return null;
+    return `${assetPath("/invite/")}#d=${encodeInvite(cleanedInvite)}`;
   }, [cleanedInvite, hasErrors]);
 
   const urlTooLong = inviteUrl !== null && inviteUrl.length > LIMITS.urlBlock;
@@ -220,8 +219,9 @@ export default function EditorPage() {
 
   const copyLink = async () => {
     if (!inviteUrl || urlTooLong) return;
+    const fullUrl = `${window.location.origin}${inviteUrl}`;
     try {
-      await navigator.clipboard.writeText(inviteUrl);
+      await navigator.clipboard.writeText(fullUrl);
       setCopied(true);
     } catch {
       // link textarea is rendered below as a manual fallback
@@ -536,14 +536,13 @@ export default function EditorPage() {
             <div className="food-preset-head">
               <div>
                 <h3 className="food-preset-title">
-                  {LANGUAGE_LABELS[invite.language]} 예비 목록
+                  {LANGUAGE_LABELS[invite.language]} 추천 메뉴
                 </h3>
                 <p className="hint">
-                  {activeFoodIndex + 1}번 후보를 선택한 뒤 아래 음식으로 빠르게 채울 수
-                  있어요.
+                  위에서 채울 칸을 고른 뒤, 아래 메뉴를 눌러 빠르게 넣을 수 있어요.
                 </p>
               </div>
-              <span className="food-slot-badge">현재 {activeFoodIndex + 1}번 후보</span>
+              <span className="food-slot-badge">현재 {activeFoodIndex + 1}번 칸</span>
             </div>
             <div className="food-preset-grid">
               {presetFoods.map((preset) => {
