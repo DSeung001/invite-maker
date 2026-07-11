@@ -16,7 +16,7 @@ type Props = {
 
 /**
  * The playful "NO" button.
- * Jumps away up to ESCAPE_LIMIT times (touch, keyboard, or pointer approach),
+ * Jumps away up to ESCAPE_LIMIT times when a pointer enters range or presses,
  * then becomes clickable. Movement uses transform so the flex slot
  * (and the Yes button) stay fixed.
  */
@@ -27,6 +27,8 @@ export default function EscapeButton({ label, boundsRef, onReject }: Props) {
   const escapeCountRef = useRef(0);
   const lastMoveAtRef = useRef(0);
   const reducedMotionRef = useRef(false);
+  /** Rising-edge guard so one hover/drag near the button counts as a single flee. */
+  const pointerInsideRef = useRef(false);
 
   useEffect(() => {
     offsetRef.current = offset;
@@ -137,21 +139,34 @@ export default function EscapeButton({ label, boundsRef, onReject }: Props) {
     [moveButton]
   );
 
-  // Desktop: escape when the pointer approaches.
+  // Mouse + touch: one flee per time the pointer enters the radius.
   useEffect(() => {
-    const handler = (e: MouseEvent) => {
+    const handler = (e: PointerEvent) => {
       const button = buttonRef.current;
       if (!button || escapeCountRef.current >= ESCAPE_LIMIT) return;
       const rect = button.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
-      if (Math.hypot(e.clientX - cx, e.clientY - cy) < POINTER_ESCAPE_RADIUS) {
-        tryEscape({ x: e.clientX, y: e.clientY });
+      const inside =
+        Math.hypot(e.clientX - cx, e.clientY - cy) < POINTER_ESCAPE_RADIUS;
+      if (!inside) {
+        pointerInsideRef.current = false;
+        return;
       }
+      if (pointerInsideRef.current) return;
+      pointerInsideRef.current = true;
+      tryEscape({ x: e.clientX, y: e.clientY });
     };
-    window.addEventListener("mousemove", handler);
-    return () => window.removeEventListener("mousemove", handler);
+    window.addEventListener("pointermove", handler);
+    return () => window.removeEventListener("pointermove", handler);
   }, [tryEscape]);
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
+    if (escapeCountRef.current >= ESCAPE_LIMIT) return;
+    e.preventDefault();
+    pointerInsideRef.current = true;
+    tryEscape({ x: e.clientX, y: e.clientY });
+  };
 
   const handleClick = () => {
     if (tryEscape()) return;
@@ -168,6 +183,7 @@ export default function EscapeButton({ label, boundsRef, onReject }: Props) {
           ? { transform: `translate(${offset.x}px, ${offset.y}px)` }
           : undefined
       }
+      onPointerDown={handlePointerDown}
       onClick={handleClick}
     >
       {label}

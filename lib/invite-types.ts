@@ -57,7 +57,7 @@ export const LIMITS = {
 } as const;
 
 /** How many times the "NO" button flees before it can be activated (mobile + desktop). */
-export const ESCAPE_LIMIT = 4;
+export const ESCAPE_LIMIT = 5;
 export const POINTER_ESCAPE_RADIUS = 80;
 
 export const SAMPLE_IMAGE_IDS = [
