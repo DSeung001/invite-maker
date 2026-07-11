@@ -221,7 +221,7 @@ export default function EditorPage() {
   const hasErrors = errors.length > 0;
   const inviteUrl = useMemo(() => {
     if (hasErrors) return null;
-    return `${assetPath("/invite/")}#d=${encodeInvite(cleanedInvite)}`;
+    return `${assetPath("/invite/")}?d=${encodeInvite(cleanedInvite)}`;
   }, [cleanedInvite, hasErrors]);
 
   const urlTooLong = inviteUrl !== null && inviteUrl.length > LIMITS.urlBlock;

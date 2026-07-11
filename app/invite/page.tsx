@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import InviteRenderer from "@/components/InviteRenderer";
-import { decodeInvite, readHashData } from "@/lib/invite-codec";
+import { decodeInvite, readInviteEncoded } from "@/lib/invite-codec";
 import { validateInvite } from "@/lib/invite-validation";
 import type { InviteData } from "@/lib/invite-types";
 
@@ -16,7 +16,7 @@ export default function InvitePage() {
   const [state, setState] = useState<State>({ status: "loading" });
 
   useEffect(() => {
-    const encoded = readHashData(window.location.hash);
+    const encoded = readInviteEncoded(window.location.search);
     if (!encoded) {
       setState({ status: "missing" });
       return;

@@ -28,8 +28,8 @@ export function decodeInvite(encoded: string): InviteData {
   return JSON.parse(json) as InviteData;
 }
 
-/** Reads the `d` value from a URL hash like `#d=...`. */
-export function readHashData(hash: string): string | null {
-  const match = hash.match(/[#&]d=([^&]+)/);
-  return match ? match[1] : null;
+/** Reads the `d` value from a URL search string like `?d=...`. */
+export function readInviteEncoded(search: string): string | null {
+  const value = new URLSearchParams(search).get("d");
+  return value && value.length > 0 ? value : null;
 }
