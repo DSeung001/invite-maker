@@ -9,7 +9,7 @@ import { LIMITS } from "./invite-types";
 export const TEXT_PRESETS: Record<InviteLanguage, InviteText> = {
   ko: {
     question: "있잖아...<br/>나랑 데이트 갈래?",
-    yesLabel: "좋아요",
+    yesLabel: "좋아",
     noLabel: "싫어..",
     yesTitle: "헉, 진짜...?",
     yesDescription: "사실 거절하면 어쩌나 엄청 떨렸어...",
@@ -37,7 +37,7 @@ export const TEXT_PRESETS: Record<InviteLanguage, InviteText> = {
   },
   ja: {
     question: "あのね...<br/>私とデートしない？",
-    yesLabel: "いいよ",
+    yesLabel: "好き",
     noLabel: "いや..",
     yesTitle: "え、ほんとに...？",
     yesDescription: "断られたらどうしようって、すごくドキドキしてた...",
