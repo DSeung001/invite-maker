@@ -56,8 +56,8 @@ export const LIMITS = {
   urlBlock: 3000,
 } as const;
 
-export const MOBILE_ESCAPE_LIMIT = 4;
-export const DESKTOP_ESCAPE_DURATION_MS = 20_000;
+/** How many times the "NO" button flees before it can be activated (mobile + desktop). */
+export const ESCAPE_LIMIT = 4;
 export const POINTER_ESCAPE_RADIUS = 80;
 
 export const SAMPLE_IMAGE_IDS = [

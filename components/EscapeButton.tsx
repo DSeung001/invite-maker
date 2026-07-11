@@ -1,11 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  DESKTOP_ESCAPE_DURATION_MS,
-  MOBILE_ESCAPE_LIMIT,
-  POINTER_ESCAPE_RADIUS,
-} from "@/lib/invite-types";
+import { ESCAPE_LIMIT, POINTER_ESCAPE_RADIUS } from "@/lib/invite-types";
 
 const MOVE_COOLDOWN_MS = 150;
 const FLEE_DISTANCE_MIN = 80;
@@ -20,18 +16,15 @@ type Props = {
 
 /**
  * The playful "NO" button.
- * - Touch/keyboard: ignores activation and jumps up to MOBILE_ESCAPE_LIMIT times,
- *   then becomes clickable.
- * - Pointer (desktop): jumps away when the cursor gets within POINTER_ESCAPE_RADIUS,
- *   for at most DESKTOP_ESCAPE_DURATION_MS after the first jump, then stays put.
- * Movement uses transform so the flex slot (and the Yes button) stay fixed.
+ * Jumps away up to ESCAPE_LIMIT times (touch, keyboard, or pointer approach),
+ * then becomes clickable. Movement uses transform so the flex slot
+ * (and the Yes button) stay fixed.
  */
 export default function EscapeButton({ label, boundsRef, onReject }: Props) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const offsetRef = useRef(offset);
-  const tapCountRef = useRef(0);
-  const firstMoveAtRef = useRef<number | null>(null);
+  const escapeCountRef = useRef(0);
   const lastMoveAtRef = useRef(0);
   const reducedMotionRef = useRef(false);
 
@@ -45,18 +38,14 @@ export default function EscapeButton({ label, boundsRef, onReject }: Props) {
     ).matches;
   }, []);
 
-  const desktopExpired = () =>
-    firstMoveAtRef.current !== null &&
-    Date.now() - firstMoveAtRef.current > DESKTOP_ESCAPE_DURATION_MS;
-
   const moveButton = useCallback(
-    (pointer?: { x: number; y: number }) => {
+    (pointer?: { x: number; y: number }): boolean => {
       const button = buttonRef.current;
       const bounds = boundsRef.current;
-      if (!button || !bounds) return;
+      if (!button || !bounds) return false;
 
       const now = Date.now();
-      if (now - lastMoveAtRef.current < MOVE_COOLDOWN_MS) return;
+      if (now - lastMoveAtRef.current < MOVE_COOLDOWN_MS) return false;
 
       try {
         const boundsRect = bounds.getBoundingClientRect();
@@ -68,7 +57,7 @@ export default function EscapeButton({ label, boundsRef, onReject }: Props) {
         const originTop = btnRect.top - boundsRect.top - current.y;
         const maxX = boundsRect.width - btnRect.width;
         const maxY = boundsRect.height - btnRect.height;
-        if (maxX <= 0 && maxY <= 0) return;
+        if (maxX <= 0 && maxY <= 0) return false;
 
         const cx = btnRect.left + btnRect.width / 2;
         const cy = btnRect.top + btnRect.height / 2;
@@ -125,39 +114,47 @@ export default function EscapeButton({ label, boundsRef, onReject }: Props) {
           x: nextLeft - originLeft,
           y: nextTop - originTop,
         });
+        return true;
       } catch {
         setOffset({ x: 0, y: 0 });
+        return false;
       }
     },
     [boundsRef]
+  );
+
+  const tryEscape = useCallback(
+    (pointer?: { x: number; y: number }) => {
+      if (escapeCountRef.current >= ESCAPE_LIMIT) return false;
+      if (reducedMotionRef.current) {
+        escapeCountRef.current += 1;
+        return true;
+      }
+      if (!moveButton(pointer)) return false;
+      escapeCountRef.current += 1;
+      return true;
+    },
+    [moveButton]
   );
 
   // Desktop: escape when the pointer approaches.
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       const button = buttonRef.current;
-      if (!button || desktopExpired()) return;
+      if (!button || escapeCountRef.current >= ESCAPE_LIMIT) return;
       const rect = button.getBoundingClientRect();
       const cx = rect.left + rect.width / 2;
       const cy = rect.top + rect.height / 2;
       if (Math.hypot(e.clientX - cx, e.clientY - cy) < POINTER_ESCAPE_RADIUS) {
-        if (firstMoveAtRef.current === null) firstMoveAtRef.current = Date.now();
-        if (!reducedMotionRef.current) {
-          moveButton({ x: e.clientX, y: e.clientY });
-        }
+        tryEscape({ x: e.clientX, y: e.clientY });
       }
     };
     window.addEventListener("mousemove", handler);
     return () => window.removeEventListener("mousemove", handler);
-  }, [moveButton]);
+  }, [tryEscape]);
 
   const handleClick = () => {
-    // Touch/keyboard path: dodge a limited number of times, then allow reject.
-    if (tapCountRef.current < MOBILE_ESCAPE_LIMIT) {
-      tapCountRef.current += 1;
-      if (!reducedMotionRef.current) moveButton();
-      return;
-    }
+    if (tryEscape()) return;
     onReject();
   };
 
