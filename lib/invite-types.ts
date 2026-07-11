@@ -52,8 +52,8 @@ export const LIMITS = {
   maxFoods: 6,
   foodLabel: 20,
   imageUrl: 500,
-  urlWarn: 4000,
-  urlBlock: 8000,
+  urlWarn: 1500,
+  urlBlock: 3000,
 } as const;
 
 export const MOBILE_ESCAPE_LIMIT = 4;
