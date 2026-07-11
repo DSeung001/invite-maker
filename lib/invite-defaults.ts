@@ -5,6 +5,7 @@ import type {
   InviteText,
 } from "./invite-types";
 import { LIMITS } from "./invite-types";
+import { DEFAULT_TIMEZONE } from "./invite-timezones";
 
 export const TEXT_PRESETS: Record<InviteLanguage, InviteText> = {
   ko: {
@@ -162,6 +163,6 @@ export function createDefaultInvite(language: InviteLanguage = "ko"): InviteData
       { date: futureDate(8), times: ["13:00", "14:00"] },
     ],
     foods: createDefaultFoods(language),
-    timezone: "Asia/Seoul",
+    timezone: DEFAULT_TIMEZONE[language],
   };
 }

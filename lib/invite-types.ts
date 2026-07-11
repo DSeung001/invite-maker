@@ -36,7 +36,7 @@ export type InviteData = {
   text: InviteText;
   schedules: Schedule[];
   foods: FoodOption[];
-  timezone: "Asia/Seoul";
+  timezone: string;
 };
 
 export const LIMITS = {

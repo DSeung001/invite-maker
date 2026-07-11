@@ -28,13 +28,6 @@ export const DATE_LOCALES: Record<InviteLanguage, string> = {
   zh: "zh-CN",
 };
 
-export const TIMEZONE_LABELS: Record<InviteLanguage, string> = {
-  ko: "한국 표준시",
-  en: "KST (UTC+9)",
-  ja: "韓国標準時",
-  zh: "韩国标准时间",
-};
-
 export type TimePresetId = "lunch" | "afternoon" | "evening";
 
 export const TIME_PRESET_LABELS: Record<
@@ -69,6 +62,9 @@ export type EditorUi = {
   fieldFinalLetter: string;
   fieldCount: (current: number, max: number) => string;
   sectionSchedule: (maxDates: number) => string;
+  sectionTimezone: string;
+  timezoneHint: string;
+  timezoneAriaLabel: string;
   dateAriaLabel: (index: number) => string;
   removeDateAriaLabel: string;
   clearTimes: string;
@@ -135,6 +131,9 @@ export const EDITOR_UI: Record<InviteLanguage, EditorUi> = {
     fieldFinalLetter: "마지막 편지",
     fieldCount: (current, max) => `${current}/${max}`,
     sectionSchedule: (maxDates) => `가능한 날짜와 시간 (최대 ${maxDates}일)`,
+    sectionTimezone: "시간대",
+    timezoneHint: "선택한 시간은 이 시간대 기준입니다.",
+    timezoneAriaLabel: "시간대 선택",
     dateAriaLabel: (index) => `날짜 ${index}`,
     removeDateAriaLabel: "날짜 삭제",
     clearTimes: "시간 초기화",
@@ -204,6 +203,9 @@ export const EDITOR_UI: Record<InviteLanguage, EditorUi> = {
     fieldFinalLetter: "Final letter",
     fieldCount: (current, max) => `${current}/${max}`,
     sectionSchedule: (maxDates) => `Available dates and times (up to ${maxDates} days)`,
+    sectionTimezone: "Time zone",
+    timezoneHint: "Times you pick are in this time zone.",
+    timezoneAriaLabel: "Select time zone",
     dateAriaLabel: (index) => `Date ${index}`,
     removeDateAriaLabel: "Remove date",
     clearTimes: "Clear times",
@@ -273,6 +275,9 @@ export const EDITOR_UI: Record<InviteLanguage, EditorUi> = {
     fieldFinalLetter: "最後の手紙",
     fieldCount: (current, max) => `${current}/${max}`,
     sectionSchedule: (maxDates) => `候補日と時間（最大${maxDates}日）`,
+    sectionTimezone: "タイムゾーン",
+    timezoneHint: "選んだ時間はこのタイムゾーン基準です。",
+    timezoneAriaLabel: "タイムゾーンを選択",
     dateAriaLabel: (index) => `日付 ${index}`,
     removeDateAriaLabel: "日付を削除",
     clearTimes: "時間をリセット",
@@ -342,6 +347,9 @@ export const EDITOR_UI: Record<InviteLanguage, EditorUi> = {
     fieldFinalLetter: "最后留言",
     fieldCount: (current, max) => `${current}/${max}`,
     sectionSchedule: (maxDates) => `可选日期和时间（最多 ${maxDates} 天）`,
+    sectionTimezone: "时区",
+    timezoneHint: "所选时间以此时区为准。",
+    timezoneAriaLabel: "选择时区",
     dateAriaLabel: (index) => `日期 ${index}`,
     removeDateAriaLabel: "删除日期",
     clearTimes: "重置时间",

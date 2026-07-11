@@ -5,7 +5,8 @@ import EscapeButton from "./EscapeButton";
 import ResultShare from "./ResultShare";
 import type { InviteData } from "@/lib/invite-types";
 import { sampleImageSrc } from "@/lib/paths";
-import { DATE_LOCALES, TIMEZONE_LABELS } from "@/lib/invite-i18n";
+import { DATE_LOCALES } from "@/lib/invite-i18n";
+import { timezoneLabel } from "@/lib/invite-timezones";
 import { renderWithBr } from "@/lib/render-with-br";
 
 type Step = "question" | "accepted" | "schedule" | "food" | "final" | "rejected";
@@ -180,7 +181,8 @@ export default function InviteRenderer({ data }: { data: InviteData }) {
             <div>
               <dt>🕐</dt>
               <dd>
-                {formatTime(selectedTime, language)} · {TIMEZONE_LABELS[language]}
+                {formatTime(selectedTime, language)} ·{" "}
+                {timezoneLabel(data.timezone, language)}
               </dd>
             </div>
             <div>
@@ -192,7 +194,7 @@ export default function InviteRenderer({ data }: { data: InviteData }) {
             language={language}
             date={formatDate(selectedDate, language)}
             time={formatTime(selectedTime, language)}
-            timezone={TIMEZONE_LABELS[language]}
+            timezone={timezoneLabel(data.timezone, language)}
             food={data.foods[selectedFood].label}
           />
         </>

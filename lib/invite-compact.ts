@@ -9,6 +9,11 @@ import type {
 } from "./invite-types";
 import { SAMPLE_IMAGE_IDS } from "./invite-types";
 import { isSupportedLanguage } from "./invite-i18n";
+import {
+  DEFAULT_TIMEZONE,
+  isSupportedTimezone,
+  sanitizeTimezone,
+} from "./invite-timezones";
 
 const TEXT_KEYS = [
   "question",
@@ -37,6 +42,8 @@ export type CompactInvite = {
   t?: Partial<InviteText>;
   s: [string, string[]][];
   f: CompactFood[];
+  /** IANA timezone; omitted when equal to the language default. */
+  tz?: string;
 };
 
 function sampleSuffix(id: string): string | null {
@@ -159,6 +166,12 @@ export function toCompact(data: InviteData): CompactInvite {
   };
   const textDelta = compactText(data.text, data.language);
   if (textDelta) compact.t = textDelta;
+  if (
+    isSupportedTimezone(data.timezone) &&
+    data.timezone !== DEFAULT_TIMEZONE[data.language]
+  ) {
+    compact.tz = data.timezone;
+  }
   return compact;
 }
 
@@ -180,6 +193,6 @@ export function fromCompact(raw: unknown): InviteData {
     ),
     schedules: expandSchedules(Array.isArray(c.s) ? c.s : []),
     foods: expandFoods(Array.isArray(c.f) ? c.f : [], language),
-    timezone: "Asia/Seoul",
+    timezone: sanitizeTimezone(c.tz ?? DEFAULT_TIMEZONE[language], language),
   };
 }

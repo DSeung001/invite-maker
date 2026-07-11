@@ -25,6 +25,11 @@ import {
   LIMITS,
   SAMPLE_IMAGE_IDS,
 } from "@/lib/invite-types";
+import {
+  DEFAULT_TIMEZONE,
+  TIMEZONE_IDS,
+  timezoneLabel,
+} from "@/lib/invite-timezones";
 import { assetPath, sampleImageSrc } from "@/lib/paths";
 
 const SAMPLE_PAGE_SIZE = 6;
@@ -98,6 +103,7 @@ export default function EditorPage() {
     update({
       language,
       text: { ...TEXT_PRESETS[language] },
+      timezone: DEFAULT_TIMEZONE[language],
       ...(shouldRefreshFoods ? { foods: nextDefaultFoods } : {}),
     });
   };
@@ -454,6 +460,21 @@ export default function EditorPage() {
 
         <section className="editor-section">
           <h2>{ui.sectionSchedule(LIMITS.maxDates)}</h2>
+          <label className="field">
+            <span>{ui.sectionTimezone}</span>
+            <select
+              aria-label={ui.timezoneAriaLabel}
+              value={invite.timezone}
+              onChange={(e) => update({ timezone: e.target.value })}
+            >
+              {TIMEZONE_IDS.map((id) => (
+                <option key={id} value={id}>
+                  {timezoneLabel(id, invite.language)}
+                </option>
+              ))}
+            </select>
+            <p className="hint">{ui.timezoneHint}</p>
+          </label>
           {invite.schedules.map((s, i) => (
             <ScheduleEditorRow
               key={i}

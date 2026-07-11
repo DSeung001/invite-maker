@@ -496,17 +496,20 @@ p.error-list {
 }
 
 .field input,
-.field textarea {
+.field textarea,
+.field select {
   border: 2px solid var(--border-soft);
   border-radius: 12px;
   padding: 10px 12px;
   font-size: 1rem;
   font-family: inherit;
   color: #4d4653;
+  background: #fff;
 }
 
 .field input:focus-visible,
-.field textarea:focus-visible {
+.field textarea:focus-visible,
+.field select:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 1px;
 }

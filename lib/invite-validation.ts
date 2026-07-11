@@ -6,6 +6,7 @@ import {
   Schedule,
 } from "./invite-types";
 import { isSupportedLanguage } from "./invite-i18n";
+import { sanitizeTimezone } from "./invite-timezones";
 
 const SAMPLE_IDS = new Set<string>(SAMPLE_IMAGE_IDS);
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
@@ -110,6 +111,6 @@ export function validateInvite(raw: unknown): InviteData | null {
     text,
     schedules,
     foods,
-    timezone: "Asia/Seoul",
+    timezone: sanitizeTimezone(data.timezone, language),
   };
 }
