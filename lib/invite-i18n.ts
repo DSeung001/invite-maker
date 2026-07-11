@@ -59,6 +59,8 @@ export type EditorUi = {
   prev: string;
   next: string;
   sectionText: string;
+  lineBreakHelp: string;
+  lineBreakHelpAriaLabel: string;
   fieldQuestion: string;
   fieldYesTitle: string;
   fieldYesDescription: string;
@@ -98,9 +100,9 @@ export type EditorUi = {
   warningUrlLong: string;
   copyLink: string;
   copied: string;
+  openInvite: string;
   previewOpen: string;
   previewClose: string;
-  shareLinkAriaLabel: string;
   shareLinkHint: string;
   urlModalTitle: string;
   urlModalHint: string;
@@ -123,6 +125,8 @@ export const EDITOR_UI: Record<InviteLanguage, EditorUi> = {
     prev: "이전",
     next: "다음",
     sectionText: "문구",
+    lineBreakHelp: "줄바꿈은 <br/> 만 사용할 수 있어요.",
+    lineBreakHelpAriaLabel: "줄바꿈 도움말",
     fieldQuestion: "메인 질문",
     fieldYesTitle: "수락 확인 제목",
     fieldYesDescription: "수락 확인 부제",
@@ -165,9 +169,9 @@ export const EDITOR_UI: Record<InviteLanguage, EditorUi> = {
     warningUrlLong: "링크가 깁니다. 일부 앱에서 잘릴 수 있어요.",
     copyLink: "초대장 링크 복사",
     copied: "복사 완료! 💗",
+    openInvite: "확인하기",
     previewOpen: "미리보기",
     previewClose: "미리보기 닫기",
-    shareLinkAriaLabel: "초대장 링크",
     shareLinkHint:
       "이 링크에는 초대장 내용이 그대로 담겨 있어요. 이름, 전화번호 같은 민감한 정보는 넣지 마세요.",
     urlModalTitle: "이미지 주소 입력",
@@ -190,6 +194,8 @@ export const EDITOR_UI: Record<InviteLanguage, EditorUi> = {
     prev: "Previous",
     next: "Next",
     sectionText: "Text",
+    lineBreakHelp: "Use <br/> only for line breaks.",
+    lineBreakHelpAriaLabel: "Line break help",
     fieldQuestion: "Main question",
     fieldYesTitle: "Acceptance title",
     fieldYesDescription: "Acceptance subtitle",
@@ -232,9 +238,9 @@ export const EDITOR_UI: Record<InviteLanguage, EditorUi> = {
     warningUrlLong: "The link is long. Some apps may truncate it.",
     copyLink: "Copy invite link",
     copied: "Copied! 💗",
+    openInvite: "Open invite",
     previewOpen: "Preview",
     previewClose: "Close preview",
-    shareLinkAriaLabel: "Invite link",
     shareLinkHint:
       "This link contains the invite content. Do not include sensitive info like names or phone numbers.",
     urlModalTitle: "Enter image URL",
@@ -257,6 +263,8 @@ export const EDITOR_UI: Record<InviteLanguage, EditorUi> = {
     prev: "前へ",
     next: "次へ",
     sectionText: "文面",
+    lineBreakHelp: "改行には <br/> のみ使えます。",
+    lineBreakHelpAriaLabel: "改行のヘルプ",
     fieldQuestion: "メインの質問",
     fieldYesTitle: "承諾確認タイトル",
     fieldYesDescription: "承諾確認サブタイトル",
@@ -299,9 +307,9 @@ export const EDITOR_UI: Record<InviteLanguage, EditorUi> = {
     warningUrlLong: "リンクが長いです。一部のアプリで切り詰められる場合があります。",
     copyLink: "招待状リンクをコピー",
     copied: "コピーしました 💗",
+    openInvite: "確認する",
     previewOpen: "プレビュー",
     previewClose: "プレビューを閉じる",
-    shareLinkAriaLabel: "招待状リンク",
     shareLinkHint:
       "このリンクには招待状の内容がそのまま含まれます。名前や電話番号などの個人情報は入れないでください。",
     urlModalTitle: "画像URLを入力",
@@ -324,6 +332,8 @@ export const EDITOR_UI: Record<InviteLanguage, EditorUi> = {
     prev: "上一页",
     next: "下一页",
     sectionText: "文案",
+    lineBreakHelp: "换行只能使用 <br/>。",
+    lineBreakHelpAriaLabel: "换行帮助",
     fieldQuestion: "主要问题",
     fieldYesTitle: "接受确认标题",
     fieldYesDescription: "接受确认副标题",
@@ -365,9 +375,9 @@ export const EDITOR_UI: Record<InviteLanguage, EditorUi> = {
     warningUrlLong: "链接较长。部分应用可能会截断。",
     copyLink: "复制邀请函链接",
     copied: "已复制 💗",
+    openInvite: "打开查看",
     previewOpen: "预览",
     previewClose: "关闭预览",
-    shareLinkAriaLabel: "邀请函链接",
     shareLinkHint: "此链接包含邀请函内容。请勿放入姓名、电话等敏感信息。",
     urlModalTitle: "输入图片地址",
     urlModalHint:
@@ -440,10 +450,10 @@ export const RESULT_SHARE_UI: Record<
 };
 
 export const FEEDBACK_UI: Record<InviteLanguage, { label: string }> = {
-  ko: { label: "피드백 보내기" },
-  en: { label: "Send feedback" },
-  ja: { label: "フィードバックを送る" },
-  zh: { label: "发送反馈" },
+  ko: { label: "개발자에게 의견 보내기" },
+  en: { label: "Send feedback to the developer" },
+  ja: { label: "開発者に意見を送る" },
+  zh: { label: "向开发者发送意见" },
 };
 
 export const FEEDBACK_FORM_URL = "https://naver.me/IDk6Q0Oj";

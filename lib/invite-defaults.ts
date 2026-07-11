@@ -8,7 +8,7 @@ import { LIMITS } from "./invite-types";
 
 export const TEXT_PRESETS: Record<InviteLanguage, InviteText> = {
   ko: {
-    question: "있잖아... 나랑 데이트 갈래?",
+    question: "있잖아...<br/>나랑 데이트 갈래?",
     yesLabel: "좋아요",
     noLabel: "싫어..",
     yesTitle: "헉, 진짜...?",
@@ -22,7 +22,7 @@ export const TEXT_PRESETS: Record<InviteLanguage, InviteText> = {
     rejectDescription: "다음에 기회가 되면... 그때 같이 가자.",
   },
   en: {
-    question: "So... will you go on a date with me?",
+    question: "So...<br/>will you go on a date with me?",
     yesLabel: "Like",
     noLabel: "No..",
     yesTitle: "Wait... really?",
@@ -36,7 +36,7 @@ export const TEXT_PRESETS: Record<InviteLanguage, InviteText> = {
     rejectDescription: "Maybe next time... let's go together then.",
   },
   ja: {
-    question: "あのね... 私とデートしない？",
+    question: "あのね...<br/>私とデートしない？",
     yesLabel: "いいよ",
     noLabel: "いや..",
     yesTitle: "え、ほんとに...？",
@@ -50,7 +50,7 @@ export const TEXT_PRESETS: Record<InviteLanguage, InviteText> = {
     rejectDescription: "また今度、機会があったら... その時は一緒に行こうね。",
   },
   zh: {
-    question: "那个... 你愿意和我约会吗？",
+    question: "那个...<br/>你愿意和我约会吗？",
     yesLabel: "喜欢",
     noLabel: "不要..",
     yesTitle: "诶，真的？",

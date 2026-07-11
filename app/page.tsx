@@ -372,7 +372,19 @@ export default function EditorPage() {
         </section>
 
         <section className="editor-section">
-          <h2>{ui.sectionText}</h2>
+          <h2 className="section-heading-with-help">
+            {ui.sectionText}
+            <span
+              className="help-tip"
+              tabIndex={0}
+              aria-label={ui.lineBreakHelpAriaLabel}
+            >
+              ?
+              <span className="help-tip-popup" role="tooltip">
+                {ui.lineBreakHelp}
+              </span>
+            </span>
+          </h2>
           <label className="field">
             <span>
               {ui.fieldQuestion} ({ui.fieldCount(invite.text.question.length, LIMITS.question)})
@@ -579,6 +591,17 @@ export default function EditorPage() {
             </button>
             <button
               type="button"
+              className="btn btn-secondary"
+              disabled={!inviteUrl || urlTooLong}
+              onClick={() => {
+                if (!inviteUrl) return;
+                window.open(inviteUrl, "_blank", "noopener,noreferrer");
+              }}
+            >
+              {ui.openInvite}
+            </button>
+            <button
+              type="button"
               className="btn btn-secondary preview-toggle"
               onClick={() => {
                 setShowPreview((v) => !v);
@@ -588,16 +611,6 @@ export default function EditorPage() {
               {showPreview ? ui.previewClose : ui.previewOpen}
             </button>
           </div>
-          {inviteUrl && !urlTooLong && (
-            <textarea
-              className="share-fallback"
-              readOnly
-              value={inviteUrl}
-              rows={3}
-              onFocus={(e) => e.currentTarget.select()}
-              aria-label={ui.shareLinkAriaLabel}
-            />
-          )}
           <p className="hint">{ui.shareLinkHint}</p>
         </section>
 

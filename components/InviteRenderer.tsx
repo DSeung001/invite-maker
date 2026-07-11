@@ -6,6 +6,7 @@ import ResultShare from "./ResultShare";
 import type { InviteData } from "@/lib/invite-types";
 import { sampleImageSrc } from "@/lib/paths";
 import { DATE_LOCALES, TIMEZONE_LABELS } from "@/lib/invite-i18n";
+import { renderWithBr } from "@/lib/render-with-br";
 
 type Step = "question" | "accepted" | "schedule" | "food" | "final" | "rejected";
 
@@ -53,7 +54,7 @@ export default function InviteRenderer({ data }: { data: InviteData }) {
             alt=""
             onError={() => imgSrc !== fallbackImage && setImgSrc(fallbackImage)}
           />
-          <h1 className="invite-title">{text.question}</h1>
+          <h1 className="invite-title">{renderWithBr(text.question)}</h1>
           <div className="invite-actions" ref={actionsRef}>
             <button
               type="button"
@@ -73,8 +74,8 @@ export default function InviteRenderer({ data }: { data: InviteData }) {
 
       {step === "accepted" && (
         <>
-          <h1 className="invite-title">{text.yesTitle}</h1>
-          <p className="invite-subtitle">{text.yesDescription}</p>
+          <h1 className="invite-title">{renderWithBr(text.yesTitle)}</h1>
+          <p className="invite-subtitle">{renderWithBr(text.yesDescription)}</p>
           <button
             type="button"
             className="btn btn-primary"
@@ -168,7 +169,9 @@ export default function InviteRenderer({ data }: { data: InviteData }) {
       {step === "final" && selectedDate && selectedTime && selectedFood !== null && (
         <>
           <h1 className="invite-title">{text.finalTitle}</h1>
-          {text.finalLetter && <p className="invite-letter">{text.finalLetter}</p>}
+          {text.finalLetter && (
+            <p className="invite-letter">{renderWithBr(text.finalLetter)}</p>
+          )}
           <dl className="result-summary">
             <div>
               <dt>📅</dt>
@@ -197,8 +200,8 @@ export default function InviteRenderer({ data }: { data: InviteData }) {
 
       {step === "rejected" && (
         <>
-          <h1 className="invite-title">{text.rejectTitle}</h1>
-          <p className="invite-subtitle">{text.rejectDescription}</p>
+          <h1 className="invite-title">{renderWithBr(text.rejectTitle)}</h1>
+          <p className="invite-subtitle">{renderWithBr(text.rejectDescription)}</p>
         </>
       )}
     </div>
