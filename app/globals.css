@@ -107,9 +107,11 @@ h2 {
 }
 
 .invite-image {
-  width: 50%;
-  max-height: clamp(90px, 28cqw, 130px);
-  object-fit: cover;
+  width: auto;
+  max-width: 58%;
+  max-height: clamp(100px, 32cqw, 150px);
+  height: auto;
+  object-fit: contain;
   border-radius: 20px;
 }
 
