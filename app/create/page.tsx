@@ -31,6 +31,7 @@ import {
   TIMEZONE_IDS,
   timezoneLabel,
 } from "@/lib/invite-timezones";
+import { fromEditorLineBreaks, toEditorLineBreaks } from "@/lib/line-break";
 import { assetPath, sampleImageSrc } from "@/lib/paths";
 
 const SAMPLE_PAGE_SIZE = 6;
@@ -396,10 +397,14 @@ export default function EditorPage() {
             <span>
               {ui.fieldQuestion} ({ui.fieldCount(invite.text.question.length, LIMITS.question)})
             </span>
-            <input
-              value={invite.text.question}
-              maxLength={LIMITS.question}
-              onChange={(e) => updateText("question", e.target.value)}
+            <textarea
+              rows={3}
+              value={toEditorLineBreaks(invite.text.question)}
+              onChange={(e) => {
+                const next = fromEditorLineBreaks(e.target.value);
+                if (next.length > LIMITS.question) return;
+                updateText("question", next);
+              }}
             />
           </label>
           <label className="field">

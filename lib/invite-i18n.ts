@@ -121,7 +121,7 @@ export const EDITOR_UI: Record<InviteLanguage, EditorUi> = {
     prev: "이전",
     next: "다음",
     sectionText: "문구",
-    lineBreakHelp: "줄바꿈은 <br/> 만 사용할 수 있어요.",
+    lineBreakHelp: "엔터로 줄바꿈할 수 있어요. (내부에서는 <br/>로 저장됩니다)",
     lineBreakHelpAriaLabel: "줄바꿈 도움말",
     fieldQuestion: "메인 질문",
     fieldYesTitle: "수락 확인 제목",
@@ -193,7 +193,7 @@ export const EDITOR_UI: Record<InviteLanguage, EditorUi> = {
     prev: "Previous",
     next: "Next",
     sectionText: "Text",
-    lineBreakHelp: "Use <br/> only for line breaks.",
+    lineBreakHelp: "Press Enter for a line break. (Saved as <br/> internally)",
     lineBreakHelpAriaLabel: "Line break help",
     fieldQuestion: "Main question",
     fieldYesTitle: "Acceptance title",
@@ -265,7 +265,7 @@ export const EDITOR_UI: Record<InviteLanguage, EditorUi> = {
     prev: "前へ",
     next: "次へ",
     sectionText: "文面",
-    lineBreakHelp: "改行には <br/> のみ使えます。",
+    lineBreakHelp: "Enterキーで改行できます。（保存時は <br/> に変換されます）",
     lineBreakHelpAriaLabel: "改行のヘルプ",
     fieldQuestion: "メインの質問",
     fieldYesTitle: "承諾確認タイトル",
@@ -337,7 +337,7 @@ export const EDITOR_UI: Record<InviteLanguage, EditorUi> = {
     prev: "上一页",
     next: "下一页",
     sectionText: "文案",
-    lineBreakHelp: "换行只能使用 <br/>。",
+    lineBreakHelp: "按 Enter 换行。（保存时会转为 <br/>）",
     lineBreakHelpAriaLabel: "换行帮助",
     fieldQuestion: "主要问题",
     fieldYesTitle: "接受确认标题",
@@ -464,13 +464,21 @@ export const FEEDBACK_UI: Record<InviteLanguage, { label: string }> = {
   zh: { label: "向开发者发送意见" },
 };
 
+export type LandingStepImage = "make" | "yes" | "no" | "share";
+
+export type LandingStep = {
+  title: string;
+  description: string;
+  image: LandingStepImage;
+};
+
 export type LandingUi = {
   brand: string;
   headline: string;
   support: string;
   howToTitle: string;
   howToSupport: string;
-  steps: [string, string, string];
+  steps: [LandingStep, LandingStep, LandingStep, LandingStep];
   ctaTitle: string;
   ctaSupport: string;
   ctaLabel: string;
@@ -483,11 +491,28 @@ export const LANDING_UI: Record<InviteLanguage, LandingUi> = {
     support:
       "회원가입 없이 문구·일정·음식을 채우고, 링크만 보내면 상대가 선택해 답할 수 있어요.",
     howToTitle: "이렇게 쓰면 돼요",
-    howToSupport: "세 단계면 충분해요.",
+    howToSupport: "4단계로 끝나요.",
     steps: [
-      "문구·일정·음식 후보를 채워요",
-      "생성된 링크를 복사해 상대에게 보내요",
-      "상대가 선택하고, 결과를 다시 전해 줘요",
+      {
+        title: "만들기",
+        description: "문구·일정·음식을 채우고 링크를 만들어요",
+        image: "make",
+      },
+      {
+        title: "수락",
+        description: "「좋아」를 누르면 일정과 음식을 고를 수 있어요",
+        image: "yes",
+      },
+      {
+        title: "거절",
+        description: "「싫어」를 누르는 걸 다양하게 거절합니다.",
+        image: "no",
+      },
+      {
+        title: "답변 공유",
+        description: "고른 날짜·시간·시간대·음식을 복사하거나 공유해요",
+        image: "share",
+      },
     ],
     ctaTitle: "준비가 됐다면",
     ctaSupport: "지금 바로 나만의 데이트 초대장을 만들어 보세요.",
@@ -499,11 +524,28 @@ export const LANDING_UI: Record<InviteLanguage, LandingUi> = {
     support:
       "Fill in the message, schedule, and food options—no sign-up. Share a link and let them choose.",
     howToTitle: "How it works",
-    howToSupport: "Three simple steps.",
+    howToSupport: "Four simple steps.",
     steps: [
-      "Fill in the message, dates, and food options",
-      "Copy the link and send it to them",
-      "They choose, then share the result back",
+      {
+        title: "Create",
+        description: "Fill in the message, dates, and food options, then make a link",
+        image: "make",
+      },
+      {
+        title: "Accept",
+        description: "Tapping “Like” lets them pick a time and food",
+        image: "yes",
+      },
+      {
+        title: "Decline",
+        description: "Try to tap “No” and the button runs away",
+        image: "no",
+      },
+      {
+        title: "Share answer",
+        description: "Copy or share the chosen date, time, time zone, and food",
+        image: "share",
+      },
     ],
     ctaTitle: "Ready to start?",
     ctaSupport: "Create your own date invitation now.",
@@ -515,11 +557,28 @@ export const LANDING_UI: Record<InviteLanguage, LandingUi> = {
     support:
       "会員登録なしで文言・日程・食べ物を入れて、リンクを送るだけ。相手が選んで返事できます。",
     howToTitle: "使い方",
-    howToSupport: "3ステップで完了です。",
+    howToSupport: "4ステップで完了です。",
     steps: [
-      "文言・日程・食べ物の候補を入力します",
-      "リンクをコピーして相手に送ります",
-      "相手が選び、結果を送り返します",
+      {
+        title: "作成",
+        description: "文言・日程・食べ物を入れてリンクを作ります",
+        image: "make",
+      },
+      {
+        title: "承諾",
+        description: "「好き」を押すと日程と食べ物を選べます",
+        image: "yes",
+      },
+      {
+        title: "拒否",
+        description: "「いや」を押そうとするとボタンが逃げます",
+        image: "no",
+      },
+      {
+        title: "回答を共有",
+        description: "選んだ日付・時間・タイムゾーン・食べ物をコピー／共有します",
+        image: "share",
+      },
     ],
     ctaTitle: "準備ができたら",
     ctaSupport: "今すぐ自分だけのデート招待状を作りましょう。",
@@ -530,11 +589,28 @@ export const LANDING_UI: Record<InviteLanguage, LandingUi> = {
     headline: "一条链接发出的约会邀请",
     support: "无需注册，填写文案、日程和食物选项，发送链接即可让对方选择回复。",
     howToTitle: "怎么用",
-    howToSupport: "三步就够了。",
+    howToSupport: "四步就够了。",
     steps: [
-      "填写文案、日期和食物选项",
-      "复制链接发给对方",
-      "对方选择后，把结果再发给你",
+      {
+        title: "制作",
+        description: "填写文案、日期和食物选项，生成链接",
+        image: "make",
+      },
+      {
+        title: "接受",
+        description: "点击「喜欢」后可以选择时间和食物",
+        image: "yes",
+      },
+      {
+        title: "拒绝",
+        description: "想点「不要」时，按钮会逃走",
+        image: "no",
+      },
+      {
+        title: "分享回答",
+        description: "复制或分享所选日期、时间、时区和食物",
+        image: "share",
+      },
     ],
     ctaTitle: "准备好了吗",
     ctaSupport: "现在就来制作你的约会邀请函吧。",
