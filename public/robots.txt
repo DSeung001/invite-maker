@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://date-invite.devseung.com/sitemap.xml
