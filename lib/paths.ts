@@ -30,6 +30,10 @@ export function homePath(): string {
   return assetPath("/");
 }
 
+export function createPath(): string {
+  return assetPath("/create/");
+}
+
 export function sitePagePath(lang: InviteLanguage, slug: SitePageSlug): string {
   return assetPath(`/${lang}/${slug}/`);
 }

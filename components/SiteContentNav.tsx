@@ -5,6 +5,7 @@ import { LANGUAGE_LABELS, SUPPORTED_LANGUAGES } from "@/lib/invite-i18n";
 import { SITE_CHROME } from "@/lib/site-pages-i18n";
 import type { InviteLanguage } from "@/lib/invite-types";
 import {
+  createPath,
   homePath,
   sitePagePath,
   type SitePageSlug,
@@ -34,7 +35,7 @@ export default function SiteContentNav({ language }: Props) {
       <a className="site-content-brand" href={homePath()}>
         {chrome.siteName}
       </a>
-      <a className="site-content-home" href={homePath()}>
+      <a className="site-content-home" href={createPath()}>
         {chrome.backHome}
       </a>
       <div className="site-content-lang">

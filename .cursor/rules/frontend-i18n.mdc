@@ -23,7 +23,7 @@ alwaysApply: false
 
 | 화면 | 언어 소스 |
 |------|-----------|
-| 에디터 (`app/page.tsx`) | `invite.language` |
+| 에디터 (`app/create/page.tsx`) | `invite.language` |
 | 초대장 뷰어 (`InviteRenderer` 등) | `data.language` |
 
 ## 새 문구 추가 시

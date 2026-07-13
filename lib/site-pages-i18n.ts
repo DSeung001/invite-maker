@@ -255,7 +255,7 @@ const GUIDE: Record<InviteLanguage, SitePageContent> = {
       {
         type: "ol",
         items: [
-          "홈 화면에서 초대장 문구 언어 선택합니다.",
+          "만들기 화면에서 초대장 문구 언어 선택합니다.",
           "메인 질문, 수락/거절 문구, 일정·음식 단계 문구 등을 원하는 대로 수정합니다.",
           "대표 이미지를 샘플에서 고르거나 HTTPS 이미지 URL을 입력합니다.",
           "가능한 날짜와 시간 선택지를 추가합니다. 점심·오후·저녁 프리셋으로 빠르게 채운 뒤, 필요하면 개별 시간을 조정하세요.",
@@ -293,7 +293,7 @@ const GUIDE: Record<InviteLanguage, SitePageContent> = {
       {
         type: "ol",
         items: [
-          "On the home page, choose the invitation text language.",
+          "On the create page, choose the invitation text language.",
           "Edit the main question, yes/no labels, and schedule/food step text as you like.",
           "Pick a cover image from samples or enter an HTTPS image URL.",
           "Add date and time options. Use Lunch / Afternoon / Evening presets, then fine-tune individual times if needed.",
@@ -331,7 +331,7 @@ const GUIDE: Record<InviteLanguage, SitePageContent> = {
       {
         type: "ol",
         items: [
-          "ホーム画面で招待状の言語を選びます。",
+          "作成画面で招待状の言語を選びます。",
           "メインの質問、承諾/拒否の文言、日程・食べ物のステップ文言などを好みに合わせて編集します。",
           "カバー画像をサンプルから選ぶか、HTTPS画像URLを入力します。",
           "候補の日付と時間を追加します。ランチ・午後・夜のプリセットで素早く入力し、必要なら個別に調整してください。",
@@ -368,7 +368,7 @@ const GUIDE: Record<InviteLanguage, SitePageContent> = {
       {
         type: "ol",
         items: [
-          "在首页选择邀请函文案语言。",
+          "在制作页面选择邀请函文案语言。",
           "按需修改主问题、接受/拒绝文案，以及日程、食物步骤文案。",
           "从示例图中选择封面，或输入 HTTPS 图片 URL。",
           "添加可选日期与时间。可用午餐/下午/晚上预设快速填入，再按需微调。",

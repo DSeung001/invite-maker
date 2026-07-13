@@ -464,4 +464,82 @@ export const FEEDBACK_UI: Record<InviteLanguage, { label: string }> = {
   zh: { label: "向开发者发送意见" },
 };
 
+export type LandingUi = {
+  brand: string;
+  headline: string;
+  support: string;
+  howToTitle: string;
+  howToSupport: string;
+  steps: [string, string, string];
+  ctaTitle: string;
+  ctaSupport: string;
+  ctaLabel: string;
+};
+
+export const LANDING_UI: Record<InviteLanguage, LandingUi> = {
+  ko: {
+    brand: "데이트 초대장 메이커",
+    headline: "링크 하나로 보내는 데이트 초대장",
+    support:
+      "회원가입 없이 문구·일정·음식을 채우고, 링크만 보내면 상대가 선택해 답할 수 있어요.",
+    howToTitle: "이렇게 쓰면 돼요",
+    howToSupport: "세 단계면 충분해요.",
+    steps: [
+      "문구·일정·음식 후보를 채워요",
+      "생성된 링크를 복사해 상대에게 보내요",
+      "상대가 선택하고, 결과를 다시 전해 줘요",
+    ],
+    ctaTitle: "준비가 됐다면",
+    ctaSupport: "지금 바로 나만의 데이트 초대장을 만들어 보세요.",
+    ctaLabel: "데이트 초대장 만들러 가기",
+  },
+  en: {
+    brand: "Date Invitation Maker",
+    headline: "A date invitation you send with one link",
+    support:
+      "Fill in the message, schedule, and food options—no sign-up. Share a link and let them choose.",
+    howToTitle: "How it works",
+    howToSupport: "Three simple steps.",
+    steps: [
+      "Fill in the message, dates, and food options",
+      "Copy the link and send it to them",
+      "They choose, then share the result back",
+    ],
+    ctaTitle: "Ready to start?",
+    ctaSupport: "Create your own date invitation now.",
+    ctaLabel: "Make a date invitation",
+  },
+  ja: {
+    brand: "デート招待状メーカー",
+    headline: "リンクひとつで送るデート招待状",
+    support:
+      "会員登録なしで文言・日程・食べ物を入れて、リンクを送るだけ。相手が選んで返事できます。",
+    howToTitle: "使い方",
+    howToSupport: "3ステップで完了です。",
+    steps: [
+      "文言・日程・食べ物の候補を入力します",
+      "リンクをコピーして相手に送ります",
+      "相手が選び、結果を送り返します",
+    ],
+    ctaTitle: "準備ができたら",
+    ctaSupport: "今すぐ自分だけのデート招待状を作りましょう。",
+    ctaLabel: "デート招待状を作る",
+  },
+  zh: {
+    brand: "约会邀请函制作工具",
+    headline: "一条链接发出的约会邀请",
+    support: "无需注册，填写文案、日程和食物选项，发送链接即可让对方选择回复。",
+    howToTitle: "怎么用",
+    howToSupport: "三步就够了。",
+    steps: [
+      "填写文案、日期和食物选项",
+      "复制链接发给对方",
+      "对方选择后，把结果再发给你",
+    ],
+    ctaTitle: "准备好了吗",
+    ctaSupport: "现在就来制作你的约会邀请函吧。",
+    ctaLabel: "去制作约会邀请函",
+  },
+};
+
 export const FEEDBACK_FORM_URL = "https://naver.me/IDk6Q0Oj";
