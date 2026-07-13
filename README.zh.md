@@ -4,7 +4,7 @@
 
 ## 部署地址
 
-https://dseung001.github.io/invite-maker/
+https://date-invite.devseung.com/
 
 ## 你可以做什么
 

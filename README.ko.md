@@ -4,7 +4,7 @@
 
 ## 배포 사이트
 
-https://dseung001.github.io/invite-maker/
+https://date-invite.devseung.com/
 
 ## 할 수 있는 일
 

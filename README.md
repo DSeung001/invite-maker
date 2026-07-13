@@ -4,7 +4,7 @@ Date Invitation Maker helps you create a playful date invitation and share it wi
 
 ## Live site
 
-https://dseung001.github.io/invite-maker/
+https://date-invite.devseung.com/
 
 ## Language READMEs
 

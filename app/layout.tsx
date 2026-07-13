@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import "./globals.css";
 
-const SITE_URL = "https://dseung001.github.io/invite-maker";
+const SITE_URL = "https://date-invite.devseung.com";
 const SITE_TITLE = "데이트 초대장 메이커";
 const SITE_DESCRIPTION = "링크 하나로 보내는 데이트 초대장";
 

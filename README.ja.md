@@ -4,7 +4,7 @@
 
 ## 公開サイト
 
-https://dseung001.github.io/invite-maker/
+https://date-invite.devseung.com/
 
 ## できること
 
