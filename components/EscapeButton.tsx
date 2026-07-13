@@ -6,11 +6,36 @@ import { ESCAPE_LIMIT, POINTER_ESCAPE_RADIUS } from "@/lib/invite-types";
 const MOVE_COOLDOWN_MS = 150;
 const FLEE_DISTANCE_MIN = 80;
 const FLEE_DISTANCE_MAX = 140;
+const AVOID_PADDING = 10;
+
+type AvoidRect = {
+  left: number;
+  top: number;
+  right: number;
+  bottom: number;
+};
+
+function overlaps(
+  left: number,
+  top: number,
+  w: number,
+  h: number,
+  avoid: AvoidRect
+) {
+  return !(
+    left + w <= avoid.left ||
+    left >= avoid.right ||
+    top + h <= avoid.top ||
+    top >= avoid.bottom
+  );
+}
 
 type Props = {
   label: string;
   /** Bounding element the button must stay inside (the action area of the card). */
   boundsRef: React.RefObject<HTMLDivElement | null>;
+  /** Element the escape button must not cover (the Yes button). */
+  avoidRef: React.RefObject<HTMLButtonElement | null>;
   onReject: () => void;
 };
 
@@ -18,9 +43,15 @@ type Props = {
  * The playful "NO" button.
  * Jumps away up to ESCAPE_LIMIT times when a pointer enters range or presses,
  * then becomes clickable. Movement uses transform so the flex slot
- * (and the Yes button) stay fixed.
+ * (and the Yes button) stay fixed. Landing positions that cover the Yes
+ * button are rejected and replaced with a random free spot in bounds.
  */
-export default function EscapeButton({ label, boundsRef, onReject }: Props) {
+export default function EscapeButton({
+  label,
+  boundsRef,
+  avoidRef,
+  onReject,
+}: Props) {
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const offsetRef = useRef(offset);
@@ -61,6 +92,23 @@ export default function EscapeButton({ label, boundsRef, onReject }: Props) {
         const maxY = boundsRect.height - btnRect.height;
         if (maxX <= 0 && maxY <= 0) return false;
 
+        const avoidEl = avoidRef.current;
+        let avoid: AvoidRect | null = null;
+        if (avoidEl) {
+          const avoidRect = avoidEl.getBoundingClientRect();
+          avoid = {
+            left: avoidRect.left - boundsRect.left - AVOID_PADDING,
+            top: avoidRect.top - boundsRect.top - AVOID_PADDING,
+            right: avoidRect.right - boundsRect.left + AVOID_PADDING,
+            bottom: avoidRect.bottom - boundsRect.top + AVOID_PADDING,
+          };
+        }
+
+        const clamp = (left: number, top: number) => ({
+          left: Math.min(Math.max(0, left), Math.max(maxX, 0)),
+          top: Math.min(Math.max(0, top), Math.max(maxY, 0)),
+        });
+
         const cx = btnRect.left + btnRect.width / 2;
         const cy = btnRect.top + btnRect.height / 2;
 
@@ -89,10 +137,10 @@ export default function EscapeButton({ label, boundsRef, onReject }: Props) {
           FLEE_DISTANCE_MIN +
           Math.random() * (FLEE_DISTANCE_MAX - FLEE_DISTANCE_MIN);
 
-        let nextLeft = originLeft + current.x + dirX * distance;
-        let nextTop = originTop + current.y + dirY * distance;
-        nextLeft = Math.min(Math.max(0, nextLeft), Math.max(maxX, 0));
-        nextTop = Math.min(Math.max(0, nextTop), Math.max(maxY, 0));
+        let { left: nextLeft, top: nextTop } = clamp(
+          originLeft + current.x + dirX * distance,
+          originTop + current.y + dirY * distance
+        );
 
         // If clamped against an edge and still near the pointer, try a side step.
         const nextCx = boundsRect.left + nextLeft + btnRect.width / 2;
@@ -105,10 +153,23 @@ export default function EscapeButton({ label, boundsRef, onReject }: Props) {
           const side = Math.random() < 0.5 ? 1 : -1;
           const altX = -dirY * side;
           const altY = dirX * side;
-          nextLeft = originLeft + current.x + altX * distance;
-          nextTop = originTop + current.y + altY * distance;
-          nextLeft = Math.min(Math.max(0, nextLeft), Math.max(maxX, 0));
-          nextTop = Math.min(Math.max(0, nextTop), Math.max(maxY, 0));
+          ({ left: nextLeft, top: nextTop } = clamp(
+            originLeft + current.x + altX * distance,
+            originTop + current.y + altY * distance
+          ));
+        }
+
+        // If landing would cover the Yes button, pick a random free spot instead.
+        if (
+          avoid &&
+          overlaps(nextLeft, nextTop, btnRect.width, btnRect.height, avoid)
+        ) {
+          do {
+            nextLeft = Math.random() * Math.max(maxX, 0);
+            nextTop = Math.random() * Math.max(maxY, 0);
+          } while (
+            overlaps(nextLeft, nextTop, btnRect.width, btnRect.height, avoid)
+          );
         }
 
         lastMoveAtRef.current = now;
@@ -122,7 +183,7 @@ export default function EscapeButton({ label, boundsRef, onReject }: Props) {
         return false;
       }
     },
-    [boundsRef]
+    [avoidRef, boundsRef]
   );
 
   const tryEscape = useCallback(

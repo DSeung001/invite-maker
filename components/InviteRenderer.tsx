@@ -35,6 +35,7 @@ export default function InviteRenderer({ data }: { data: InviteData }) {
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
   const [selectedFood, setSelectedFood] = useState<number | null>(null);
   const actionsRef = useRef<HTMLDivElement>(null);
+  const yesButtonRef = useRef<HTMLButtonElement>(null);
 
   const { text, language } = data;
   const imageSrc =
@@ -58,6 +59,7 @@ export default function InviteRenderer({ data }: { data: InviteData }) {
           <h1 className="invite-title">{renderWithBr(text.question)}</h1>
           <div className="invite-actions" ref={actionsRef}>
             <button
+              ref={yesButtonRef}
               type="button"
               className="btn btn-primary"
               onClick={() => setStep("accepted")}
@@ -67,6 +69,7 @@ export default function InviteRenderer({ data }: { data: InviteData }) {
             <EscapeButton
               label={text.noLabel}
               boundsRef={actionsRef}
+              avoidRef={yesButtonRef}
               onReject={() => setStep("rejected")}
             />
           </div>
