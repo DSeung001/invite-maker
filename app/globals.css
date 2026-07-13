@@ -1246,15 +1246,12 @@ p.error-list {
 .landing {
   --landing-rose: #e4568f;
   --landing-rose-deep: #c93d74;
-  --landing-ink: #4a2a3c;
-  --landing-muted: #6f5a66;
-  --landing-wash: #f7e8f0;
+  --landing-ink: #1f2430;
+  --landing-muted: #4b5563;
   position: relative;
   min-height: 100vh;
   color: var(--landing-muted);
-  background:
-    radial-gradient(ellipse 80% 50% at 50% -10%, #fce4ef 0%, transparent 55%),
-    linear-gradient(180deg, #faf4f7 0%, #f3e6ee 40%, #efe8f5 100%);
+  background: #f6f7f8;
 }
 
 .landing-nav {
@@ -1304,13 +1301,13 @@ p.error-list {
 }
 
 .landing-lang-btn[aria-pressed="true"] {
-  color: var(--landing-rose-deep);
+  color: var(--landing-ink);
   font-weight: 700;
   text-decoration: underline;
 }
 
 .landing .site-footer {
-  border-top-color: rgba(228, 86, 143, 0.18);
+  border-top-color: #e2e5ea;
 }
 
 .landing .site-footer-nav a {
@@ -1344,7 +1341,7 @@ p.error-list {
   font-size: clamp(1.15rem, 3.2vw, 1.55rem);
   font-weight: 500;
   line-height: 1.35;
-  color: #6b3a52;
+  color: var(--landing-ink);
 }
 
 .landing-support {
