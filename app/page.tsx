@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import DeveloperFeedback from "@/components/DeveloperFeedback";
 import InviteRenderer from "@/components/InviteRenderer";
 import ScheduleEditorRow from "@/components/ScheduleEditorRow";
+import SiteFooter from "@/components/SiteFooter";
 import { encodeInvite } from "@/lib/invite-codec";
 import {
   createDefaultFoods,
@@ -636,6 +637,7 @@ export default function EditorPage() {
         </section>
 
         <DeveloperFeedback language={invite.language} />
+        <SiteFooter language={invite.language} />
       </div>
 
       <aside className={`editor-preview${showPreview ? " open" : ""}`}>

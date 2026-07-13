@@ -2,15 +2,31 @@
 
 import { useEffect, useState } from "react";
 import InviteRenderer from "@/components/InviteRenderer";
+import SiteFooter from "@/components/SiteFooter";
 import { decodeInvite, readInviteEncoded } from "@/lib/invite-codec";
 import { validateInvite } from "@/lib/invite-validation";
-import type { InviteData } from "@/lib/invite-types";
+import type { InviteData, InviteLanguage } from "@/lib/invite-types";
 
 type State =
   | { status: "loading" }
   | { status: "ready"; data: InviteData }
   | { status: "missing" }
   | { status: "broken" };
+
+function InviteShell({
+  language,
+  children,
+}: {
+  language: InviteLanguage;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="invite-page-shell">
+      <main className="page-center theme">{children}</main>
+      <SiteFooter language={language} />
+    </div>
+  );
+}
 
 export default function InvitePage() {
   const [state, setState] = useState<State>({ status: "loading" });
@@ -33,29 +49,29 @@ export default function InvitePage() {
 
   if (state.status === "missing") {
     return (
-      <main className="page-center theme">
+      <InviteShell language="ko">
         <div className="invite-card">
           <h1 className="invite-title">초대장 정보를 찾을 수 없습니다.</h1>
           <p className="invite-subtitle">링크가 올바른지 확인해 주세요.</p>
         </div>
-      </main>
+      </InviteShell>
     );
   }
 
   if (state.status === "broken") {
     return (
-      <main className="page-center theme">
+      <InviteShell language="ko">
         <div className="invite-card">
           <h1 className="invite-title">초대장 링크가 손상되었습니다.</h1>
           <p className="invite-subtitle">새로운 링크를 요청해 주세요.</p>
         </div>
-      </main>
+      </InviteShell>
     );
   }
 
   return (
-    <main className="page-center theme">
+    <InviteShell language={state.data.language}>
       <InviteRenderer data={state.data} />
-    </main>
+    </InviteShell>
   );
 }
