@@ -820,17 +820,6 @@ const CONTACT: Record<InviteLanguage, SitePageContent> = {
         label: "피드백 폼 열기",
         external: true,
       },
-      { type: "h2", text: "사이트" },
-      {
-        type: "link",
-        href: SITE_URL,
-        label: SITE_URL,
-        external: true,
-      },
-      {
-        type: "p",
-        text: "개인정보·이용 관련 내용은 개인정보처리방침과 이용약관 페이지를 참고해 주세요.",
-      },
     ],
   },
   en: {
@@ -848,17 +837,6 @@ const CONTACT: Record<InviteLanguage, SitePageContent> = {
         href: FEEDBACK_FORM_URL,
         label: "Open feedback form",
         external: true,
-      },
-      { type: "h2", text: "Website" },
-      {
-        type: "link",
-        href: SITE_URL,
-        label: SITE_URL,
-        external: true,
-      },
-      {
-        type: "p",
-        text: "For privacy and usage details, see the Privacy Policy and Terms of Use pages.",
       },
     ],
   },
@@ -878,17 +856,6 @@ const CONTACT: Record<InviteLanguage, SitePageContent> = {
         label: "フィードバックフォームを開く",
         external: true,
       },
-      { type: "h2", text: "サイト" },
-      {
-        type: "link",
-        href: SITE_URL,
-        label: SITE_URL,
-        external: true,
-      },
-      {
-        type: "p",
-        text: "プライバシーおよび利用に関する内容は、プライバシーポリシーと利用規約のページをご確認ください。",
-      },
     ],
   },
   zh: {
@@ -905,17 +872,6 @@ const CONTACT: Record<InviteLanguage, SitePageContent> = {
         href: FEEDBACK_FORM_URL,
         label: "打开反馈表单",
         external: true,
-      },
-      { type: "h2", text: "网站" },
-      {
-        type: "link",
-        href: SITE_URL,
-        label: SITE_URL,
-        external: true,
-      },
-      {
-        type: "p",
-        text: "隐私与使用相关说明请参阅隐私政策与使用条款页面。",
       },
     ],
   },
