@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import GoogleAdSense from "@/components/GoogleAdSense";
 import GoogleAnalytics from "@/components/GoogleAnalytics";
 import "./globals.css";
 
@@ -52,6 +53,7 @@ export default function RootLayout({
     <html lang="ko">
       <body>
         <GoogleAnalytics />
+        <GoogleAdSense />
         {children}
       </body>
     </html>
