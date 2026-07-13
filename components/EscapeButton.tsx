@@ -163,13 +163,20 @@ export default function EscapeButton({ label, boundsRef, onReject }: Props) {
 
   const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
     if (escapeCountRef.current >= ESCAPE_LIMIT) return;
+    // Suppress the synthetic click from this gesture so cooldown failure
+    // on click cannot accidentally call onReject after a successful flee.
     e.preventDefault();
     pointerInsideRef.current = true;
     tryEscape({ x: e.clientX, y: e.clientY });
   };
 
   const handleClick = () => {
-    if (tryEscape()) return;
+    // Still within flee quota: never reject. (Cooldown / failed move must
+    // not be treated as "ready to click" — that broke the 2nd mobile tap.)
+    if (escapeCountRef.current < ESCAPE_LIMIT) {
+      tryEscape();
+      return;
+    }
     onReject();
   };
 
