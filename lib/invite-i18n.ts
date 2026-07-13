@@ -464,6 +464,25 @@ export const FEEDBACK_UI: Record<InviteLanguage, { label: string }> = {
   zh: { label: "向开发者发送意见" },
 };
 
+export type RejectEventUi = {
+  toastLines: string[];
+};
+
+export const REJECT_EVENT_UI: Record<InviteLanguage, RejectEventUi> = {
+  ko: {
+    toastLines: ["잠깐!", "한 번만 더…", "정말?", "다시 생각!", "거의 다 왔어"],
+  },
+  en: {
+    toastLines: ["Wait!", "Just once more…", "Really?", "Think again!", "Almost there"],
+  },
+  ja: {
+    toastLines: ["ちょっと！", "もう一回…", "本当に？", "考え直して！", "あと少し"],
+  },
+  zh: {
+    toastLines: ["等等！", "再想一下…", "真的？", "再考虑！", "快到了"],
+  },
+};
+
 export type LandingStepImage = "make" | "yes" | "no" | "share";
 
 export type LandingStep = {

@@ -143,6 +143,7 @@ h2 {
   align-items: flex-start;
   gap: clamp(10px, 3.5cqw, 16px);
   padding-top: 8px;
+  overflow: visible;
 }
 
 .invite-card .btn {
@@ -191,16 +192,82 @@ h2 {
   padding: 10px 22px;
 }
 
-.escape-btn {
-  touch-action: none;
+.escape-btn-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  z-index: 2;
   transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
   will-change: transform;
 }
 
+.escape-btn {
+  touch-action: none;
+}
+
+.reject-toast {
+  position: absolute;
+  left: 50%;
+  top: calc(100% + 8px);
+  transform: translateX(-50%);
+  z-index: 6;
+  white-space: nowrap;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #4d4653;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 700;
+  pointer-events: none;
+  box-shadow: 0 4px 14px rgba(45, 30, 50, 0.2);
+  animation: reject-toast-in 0.2s ease-out;
+}
+
+.reject-shake {
+  animation: reject-shake-kf 0.5s ease-in-out;
+}
+
+@keyframes reject-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -4px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+@keyframes reject-shake-kf {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-5px);
+  }
+  80% {
+    transform: translateX(5px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .btn,
-  .escape-btn {
+  .escape-btn-wrap {
     transition: none;
+  }
+
+  .reject-shake,
+  .reject-toast {
+    animation: none;
   }
 }
 

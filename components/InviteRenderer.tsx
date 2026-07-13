@@ -68,6 +68,7 @@ export default function InviteRenderer({ data }: { data: InviteData }) {
             </button>
             <EscapeButton
               label={text.noLabel}
+              language={language}
               boundsRef={actionsRef}
               avoidRef={yesButtonRef}
               onReject={() => setStep("rejected")}
