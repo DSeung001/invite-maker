@@ -10,7 +10,7 @@ import {
 } from "@/lib/invite-i18n";
 import { SITE_CHROME } from "@/lib/site-pages-i18n";
 import type { InviteLanguage } from "@/lib/invite-types";
-import { createPath } from "@/lib/paths";
+import { assetPath, createPath } from "@/lib/paths";
 
 const LANDING_LANG_KEY = "date-invite-landing-lang";
 
@@ -77,11 +77,35 @@ export default function LandingPage() {
           <p className="landing-section-support">{ui.howToSupport}</p>
           <ol className="landing-steps">
             {ui.steps.map((step, index) => (
-              <li key={step} className="landing-step">
-                <span className="landing-step-num" aria-hidden>
-                  {index + 1}
-                </span>
-                <span className="landing-step-text">{step}</span>
+              <li
+                key={step.image}
+                className={`landing-step${
+                  step.image === "make" ? " landing-step-wide" : ""
+                }`}
+              >
+                <div className="landing-step-header">
+                  <span className="landing-step-num" aria-hidden>
+                    {index + 1}
+                  </span>
+                  <h3 className="landing-step-title">{step.title}</h3>
+                </div>
+                <p className="landing-step-text">{step.description}</p>
+                <div
+                  className={
+                    step.image === "make"
+                      ? "landing-step-preview landing-step-preview-uncropped"
+                      : step.image === "share"
+                        ? "landing-step-preview landing-step-preview-contain"
+                        : "landing-step-preview"
+                  }
+                >
+                  <img
+                    src={assetPath(`/images/landing/${step.image}.png`)}
+                    alt=""
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
               </li>
             ))}
           </ol>

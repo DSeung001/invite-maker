@@ -2,7 +2,6 @@ import type { InviteLanguage } from "./invite-types";
 
 export type SitePageSlug =
   | "about"
-  | "guide"
   | "faq"
   | "privacy"
   | "terms"
@@ -10,7 +9,6 @@ export type SitePageSlug =
 
 export const SITE_PAGE_SLUGS: readonly SitePageSlug[] = [
   "about",
-  "guide",
   "faq",
   "privacy",
   "terms",

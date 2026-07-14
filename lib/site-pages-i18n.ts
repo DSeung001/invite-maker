@@ -22,7 +22,6 @@ export type SiteChromeLabels = {
   backHome: string;
   language: string;
   about: string;
-  guide: string;
   faq: string;
   privacy: string;
   terms: string;
@@ -38,7 +37,6 @@ export const SITE_CHROME: Record<InviteLanguage, SiteChromeLabels> = {
     backHome: "초대장 만들기로 돌아가기",
     language: "언어",
     about: "서비스 소개",
-    guide: "사용 방법",
     faq: "자주 묻는 질문",
     privacy: "개인정보처리방침",
     terms: "이용약관",
@@ -50,7 +48,6 @@ export const SITE_CHROME: Record<InviteLanguage, SiteChromeLabels> = {
     backHome: "Back to invitation maker",
     language: "Language",
     about: "About",
-    guide: "How to use",
     faq: "FAQ",
     privacy: "Privacy Policy",
     terms: "Terms of Use",
@@ -62,7 +59,6 @@ export const SITE_CHROME: Record<InviteLanguage, SiteChromeLabels> = {
     backHome: "招待状作成に戻る",
     language: "言語",
     about: "サービス紹介",
-    guide: "使い方",
     faq: "よくある質問",
     privacy: "プライバシーポリシー",
     terms: "利用規約",
@@ -74,7 +70,6 @@ export const SITE_CHROME: Record<InviteLanguage, SiteChromeLabels> = {
     backHome: "返回邀请函制作",
     language: "语言",
     about: "服务介绍",
-    guide: "使用方法",
     faq: "常见问题",
     privacy: "隐私政策",
     terms: "使用条款",
@@ -236,160 +231,6 @@ const ABOUT: Record<InviteLanguage, SitePageContent> = {
       {
         type: "p",
         text: "邀请函内容包含在分享链接（URL）本身中，而非服务器数据库。持有链接的人可以查看内容，请勿填写敏感个人信息。",
-      },
-    ],
-  },
-};
-
-const GUIDE: Record<InviteLanguage, SitePageContent> = {
-  ko: {
-    title: "사용 방법",
-    description:
-      "데이트 초대장 메이커로 초대장을 만들고 링크로 공유하는 단계별 안내입니다.",
-    blocks: [
-      {
-        type: "p",
-        text: "아래 순서대로 진행하면 초대장을 만들고 상대에게 보낼 수 있습니다.",
-      },
-      { type: "h2", text: "초대장 만들기" },
-      {
-        type: "ol",
-        items: [
-          "만들기 화면에서 초대장 문구 언어 선택합니다.",
-          "메인 질문, 수락/거절 문구, 일정·음식 단계 문구 등을 원하는 대로 수정합니다.",
-          "대표 이미지를 샘플에서 고르거나 HTTPS 이미지 URL을 입력합니다.",
-          "가능한 날짜와 시간 선택지를 추가합니다. 점심·오후·저녁 프리셋으로 빠르게 채운 뒤, 필요하면 개별 시간을 조정하세요.",
-          "한 날짜에서 고른 시간대를 다른 날짜로 복사할 수 있습니다.",
-          "음식 선택지를 설정합니다.",
-          "생성된 초대장 링크를 복사합니다.",
-        ],
-      },
-      { type: "h2", text: "상대가 응답하기" },
-      {
-        type: "ol",
-        items: [
-          "상대에게 링크를 보냅니다.",
-          "상대는 링크를 열어 수락 여부, 일정, 음식을 단계별로 선택합니다.",
-          "마지막 화면에서 결과를 복사하거나 공유해 다시 전달할 수 있습니다.",
-        ],
-      },
-      { type: "h2", text: "미리보기" },
-      {
-        type: "p",
-        text: "에디터에서 미리보기를 열어 상대가 보게 될 화면을 확인한 뒤 링크를 공유하세요.",
-      },
-    ],
-  },
-  en: {
-    title: "How to use",
-    description:
-      "Step-by-step guide to create a date invitation and share it with one link.",
-    blocks: [
-      {
-        type: "p",
-        text: "Follow these steps to create an invitation and send it to your partner.",
-      },
-      { type: "h2", text: "Create an invitation" },
-      {
-        type: "ol",
-        items: [
-          "On the create page, choose the invitation text language.",
-          "Edit the main question, yes/no labels, and schedule/food step text as you like.",
-          "Pick a cover image from samples or enter an HTTPS image URL.",
-          "Add date and time options. Use Lunch / Afternoon / Evening presets, then fine-tune individual times if needed.",
-          "You can copy selected times from one date to the other dates.",
-          "Set food options.",
-          "Copy the generated invitation link.",
-        ],
-      },
-      { type: "h2", text: "Your partner responds" },
-      {
-        type: "ol",
-        items: [
-          "Send the link to your partner.",
-          "They open the link and choose acceptance, schedule, and food step by step.",
-          "On the final screen, they can copy or share the result back to you.",
-        ],
-      },
-      { type: "h2", text: "Preview" },
-      {
-        type: "p",
-        text: "Open the editor preview to see what your partner will see before you share the link.",
-      },
-    ],
-  },
-  ja: {
-    title: "使い方",
-    description:
-      "デート招待状メーカーで招待状を作り、リンクで共有する手順です。",
-    blocks: [
-      {
-        type: "p",
-        text: "次の手順で招待状を作成し、相手に送れます。",
-      },
-      { type: "h2", text: "招待状を作る" },
-      {
-        type: "ol",
-        items: [
-          "作成画面で招待状の言語を選びます。",
-          "メインの質問、承諾/拒否の文言、日程・食べ物のステップ文言などを好みに合わせて編集します。",
-          "カバー画像をサンプルから選ぶか、HTTPS画像URLを入力します。",
-          "候補の日付と時間を追加します。ランチ・午後・夜のプリセットで素早く入力し、必要なら個別に調整してください。",
-          "ある日付で選んだ時間帯を他の日付へコピーできます。",
-          "食べ物の候補を設定します。",
-          "生成された招待状リンクをコピーします。",
-        ],
-      },
-      { type: "h2", text: "相手が回答する" },
-      {
-        type: "ol",
-        items: [
-          "相手にリンクを送ります。",
-          "相手はリンクを開き、承諾、日程、食べ物を順番に選びます。",
-          "最後の画面で結果をコピーまたは共有して伝えられます。",
-        ],
-      },
-      { type: "h2", text: "プレビュー" },
-      {
-        type: "p",
-        text: "リンクを共有する前に、エディタのプレビューで相手に見える画面を確認してください。",
-      },
-    ],
-  },
-  zh: {
-    title: "使用方法",
-    description: "用约会邀请函制作工具创建邀请函并用链接分享的分步说明。",
-    blocks: [
-      {
-        type: "p",
-        text: "按以下步骤即可创建邀请函并发送给对方。",
-      },
-      { type: "h2", text: "创建邀请函" },
-      {
-        type: "ol",
-        items: [
-          "在制作页面选择邀请函文案语言。",
-          "按需修改主问题、接受/拒绝文案，以及日程、食物步骤文案。",
-          "从示例图中选择封面，或输入 HTTPS 图片 URL。",
-          "添加可选日期与时间。可用午餐/下午/晚上预设快速填入，再按需微调。",
-          "可将某日所选时段复制到其他日期。",
-          "设置食物选项。",
-          "复制生成的邀请链接。",
-        ],
-      },
-      { type: "h2", text: "对方如何回应" },
-      {
-        type: "ol",
-        items: [
-          "把链接发给对方。",
-          "对方打开链接，按步骤选择是否接受、日程和食物。",
-          "在最终画面可复制或分享结果并回传给你。",
-        ],
-      },
-      { type: "h2", text: "预览" },
-      {
-        type: "p",
-        text: "分享链接前，可在编辑器中打开预览，确认对方将看到的画面。",
       },
     ],
   },
@@ -979,17 +820,6 @@ const CONTACT: Record<InviteLanguage, SitePageContent> = {
         label: "피드백 폼 열기",
         external: true,
       },
-      { type: "h2", text: "사이트" },
-      {
-        type: "link",
-        href: SITE_URL,
-        label: SITE_URL,
-        external: true,
-      },
-      {
-        type: "p",
-        text: "개인정보·이용 관련 내용은 개인정보처리방침과 이용약관 페이지를 참고해 주세요.",
-      },
     ],
   },
   en: {
@@ -1007,17 +837,6 @@ const CONTACT: Record<InviteLanguage, SitePageContent> = {
         href: FEEDBACK_FORM_URL,
         label: "Open feedback form",
         external: true,
-      },
-      { type: "h2", text: "Website" },
-      {
-        type: "link",
-        href: SITE_URL,
-        label: SITE_URL,
-        external: true,
-      },
-      {
-        type: "p",
-        text: "For privacy and usage details, see the Privacy Policy and Terms of Use pages.",
       },
     ],
   },
@@ -1037,17 +856,6 @@ const CONTACT: Record<InviteLanguage, SitePageContent> = {
         label: "フィードバックフォームを開く",
         external: true,
       },
-      { type: "h2", text: "サイト" },
-      {
-        type: "link",
-        href: SITE_URL,
-        label: SITE_URL,
-        external: true,
-      },
-      {
-        type: "p",
-        text: "プライバシーおよび利用に関する内容は、プライバシーポリシーと利用規約のページをご確認ください。",
-      },
     ],
   },
   zh: {
@@ -1065,17 +873,6 @@ const CONTACT: Record<InviteLanguage, SitePageContent> = {
         label: "打开反馈表单",
         external: true,
       },
-      { type: "h2", text: "网站" },
-      {
-        type: "link",
-        href: SITE_URL,
-        label: SITE_URL,
-        external: true,
-      },
-      {
-        type: "p",
-        text: "隐私与使用相关说明请参阅隐私政策与使用条款页面。",
-      },
     ],
   },
 };
@@ -1085,7 +882,6 @@ export const SITE_PAGES: Record<
   Record<InviteLanguage, SitePageContent>
 > = {
   about: ABOUT,
-  guide: GUIDE,
   faq: FAQ,
   privacy: PRIVACY,
   terms: TERMS,

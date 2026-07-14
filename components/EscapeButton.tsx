@@ -1,12 +1,25 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ESCAPE_LIMIT, POINTER_ESCAPE_RADIUS } from "@/lib/invite-types";
+import { REJECT_EVENT_UI } from "@/lib/invite-i18n";
+import {
+  pickRandomEvent,
+  runRejectEvent,
+  type PointerPos,
+  type RejectEventApi,
+} from "@/lib/reject-events";
+import {
+  ESCAPE_LIMIT,
+  POINTER_ESCAPE_RADIUS,
+  type InviteLanguage,
+} from "@/lib/invite-types";
 
 const MOVE_COOLDOWN_MS = 150;
+const EVENT_COOLDOWN_MS = 550;
 const FLEE_DISTANCE_MIN = 80;
 const FLEE_DISTANCE_MAX = 140;
 const AVOID_PADDING = 10;
+const TOAST_MS = 1000;
 
 type AvoidRect = {
   left: number;
@@ -32,6 +45,7 @@ function overlaps(
 
 type Props = {
   label: string;
+  language: InviteLanguage;
   /** Bounding element the button must stay inside (the action area of the card). */
   boundsRef: React.RefObject<HTMLDivElement | null>;
   /** Element the escape button must not cover (the Yes button). */
@@ -40,26 +54,31 @@ type Props = {
 };
 
 /**
- * The playful "NO" button.
- * Jumps away up to ESCAPE_LIMIT times when a pointer enters range or presses,
- * then becomes clickable. Movement uses transform so the flex slot
- * (and the Yes button) stay fixed. Landing positions that cover the Yes
- * button are rejected and replaced with a random free spot in bounds.
+ * Playful "NO" button with an extensible reject-event registry.
+ * Up to ESCAPE_LIMIT attempts each run a random event (flee / shake toast),
+ * then the button becomes clickable.
  */
 export default function EscapeButton({
   label,
+  language,
   boundsRef,
   avoidRef,
   onReject,
 }: Props) {
+  const ui = REJECT_EVENT_UI[language];
   const buttonRef = useRef<HTMLButtonElement>(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const offsetRef = useRef(offset);
   const escapeCountRef = useRef(0);
   const lastMoveAtRef = useRef(0);
+  const lastEventAtRef = useRef(0);
   const reducedMotionRef = useRef(false);
-  /** Rising-edge guard so one hover/drag near the button counts as a single flee. */
   const pointerInsideRef = useRef(false);
+  const suppressClickRef = useRef(false);
+  const toastLineIndexRef = useRef(0);
+  const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const [toastText, setToastText] = useState<string | null>(null);
 
   useEffect(() => {
     offsetRef.current = offset;
@@ -71,8 +90,14 @@ export default function EscapeButton({
     ).matches;
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    };
+  }, []);
+
   const moveButton = useCallback(
-    (pointer?: { x: number; y: number }): boolean => {
+    (pointer?: PointerPos): boolean => {
       const button = buttonRef.current;
       const bounds = boundsRef.current;
       if (!button || !bounds) return false;
@@ -85,7 +110,6 @@ export default function EscapeButton({
         const btnRect = button.getBoundingClientRect();
         const current = offsetRef.current;
 
-        // Untransformed origin of the button within bounds.
         const originLeft = btnRect.left - boundsRect.left - current.x;
         const originTop = btnRect.top - boundsRect.top - current.y;
         const maxX = boundsRect.width - btnRect.width;
@@ -142,7 +166,6 @@ export default function EscapeButton({
           originTop + current.y + dirY * distance
         );
 
-        // If clamped against an edge and still near the pointer, try a side step.
         const nextCx = boundsRect.left + nextLeft + btnRect.width / 2;
         const nextCy = boundsRect.top + nextTop + btnRect.height / 2;
         if (
@@ -159,7 +182,6 @@ export default function EscapeButton({
           ));
         }
 
-        // If landing would cover the Yes button, pick a random free spot instead.
         if (
           avoid &&
           overlaps(nextLeft, nextTop, btnRect.width, btnRect.height, avoid)
@@ -186,21 +208,52 @@ export default function EscapeButton({
     [avoidRef, boundsRef]
   );
 
-  const tryEscape = useCallback(
-    (pointer?: { x: number; y: number }) => {
-      if (escapeCountRef.current >= ESCAPE_LIMIT) return false;
-      if (reducedMotionRef.current) {
-        escapeCountRef.current += 1;
-        return true;
-      }
-      if (!moveButton(pointer)) return false;
-      escapeCountRef.current += 1;
-      return true;
-    },
-    [moveButton]
-  );
+  const playShakeToast = useCallback(() => {
+    const lines = ui.toastLines;
+    const idx = toastLineIndexRef.current % lines.length;
+    toastLineIndexRef.current += 1;
+    setToastText(lines[idx] ?? lines[0]);
 
-  // Mouse + touch: one flee per time the pointer enters the radius.
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToastText(null), TOAST_MS);
+
+    if (!reducedMotionRef.current) {
+      const btn = buttonRef.current;
+      if (btn) {
+        btn.classList.remove("reject-shake");
+        void btn.offsetWidth;
+        btn.classList.add("reject-shake");
+      }
+    }
+  }, [ui.toastLines]);
+
+  const eventApiRef = useRef<RejectEventApi>({
+    runFlee: () => false,
+    playShakeToast: () => {},
+  });
+  eventApiRef.current = {
+    runFlee: (pointer) => {
+      if (reducedMotionRef.current) return true;
+      return moveButton(pointer);
+    },
+    playShakeToast,
+  };
+
+  const tryEscape = useCallback((pointer?: PointerPos) => {
+    if (escapeCountRef.current >= ESCAPE_LIMIT) return false;
+    const now = Date.now();
+    // One physical gesture often fires pointermove + pointerdown + click;
+    // count only once per cooldown window so the user gets a full 5 events.
+    if (now - lastEventAtRef.current < EVENT_COOLDOWN_MS) return false;
+
+    const id = pickRandomEvent();
+    const ok = runRejectEvent(id, eventApiRef.current, pointer);
+    if (!ok) return false;
+    lastEventAtRef.current = now;
+    escapeCountRef.current += 1;
+    return true;
+  }, []);
+
   useEffect(() => {
     const handler = (e: PointerEvent) => {
       const button = buttonRef.current;
@@ -224,16 +277,17 @@ export default function EscapeButton({
 
   const handlePointerDown = (e: React.PointerEvent<HTMLButtonElement>) => {
     if (escapeCountRef.current >= ESCAPE_LIMIT) return;
-    // Suppress the synthetic click from this gesture so cooldown failure
-    // on click cannot accidentally call onReject after a successful flee.
     e.preventDefault();
     pointerInsideRef.current = true;
+    suppressClickRef.current = true;
     tryEscape({ x: e.clientX, y: e.clientY });
   };
 
   const handleClick = () => {
-    // Still within flee quota: never reject. (Cooldown / failed move must
-    // not be treated as "ready to click" — that broke the 2nd mobile tap.)
+    if (suppressClickRef.current) {
+      suppressClickRef.current = false;
+      return;
+    }
     if (escapeCountRef.current < ESCAPE_LIMIT) {
       tryEscape();
       return;
@@ -242,19 +296,29 @@ export default function EscapeButton({
   };
 
   return (
-    <button
-      ref={buttonRef}
-      type="button"
-      className="btn btn-secondary escape-btn"
+    <div
+      className="escape-btn-wrap"
       style={
         offset.x !== 0 || offset.y !== 0
           ? { transform: `translate(${offset.x}px, ${offset.y}px)` }
           : undefined
       }
-      onPointerDown={handlePointerDown}
-      onClick={handleClick}
     >
-      {label}
-    </button>
+      <button
+        ref={buttonRef}
+        type="button"
+        className="btn btn-secondary escape-btn"
+        onPointerDown={handlePointerDown}
+        onClick={handleClick}
+      >
+        {label}
+      </button>
+
+      {toastText && (
+        <div className="reject-toast" role="status">
+          {toastText}
+        </div>
+      )}
+    </div>
   );
 }
