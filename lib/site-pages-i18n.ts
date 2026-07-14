@@ -2,6 +2,8 @@ import { FEEDBACK_FORM_URL } from "./invite-i18n";
 import type { InviteLanguage } from "./invite-types";
 import type { SitePageSlug } from "./paths";
 
+export { SITE_URL } from "./site-meta";
+
 export type ContentBlock =
   | { type: "p"; text: string }
   | { type: "h2"; text: string }
@@ -27,8 +29,6 @@ export type SiteChromeLabels = {
   terms: string;
   contact: string;
 };
-
-export const SITE_URL = "https://date-invite.devseung.com";
 
 export const SITE_CHROME: Record<InviteLanguage, SiteChromeLabels> = {
   ko: {

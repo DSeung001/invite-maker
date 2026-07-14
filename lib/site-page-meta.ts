@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { isSupportedLanguage, SUPPORTED_LANGUAGES } from "@/lib/invite-i18n";
 import type { InviteLanguage } from "@/lib/invite-types";
-import { SITE_CHROME, SITE_PAGES, SITE_URL } from "@/lib/site-pages-i18n";
+import { SITE_CHROME, SITE_PAGES } from "@/lib/site-pages-i18n";
+import { OG_IMAGE, SITE_URL } from "@/lib/site-meta";
 import type { SitePageSlug } from "@/lib/paths";
 import { sitePagePath } from "@/lib/paths";
 
@@ -22,12 +23,15 @@ export function buildPageMetadata(
   const path = sitePagePath(lang, slug);
   const url = `${SITE_URL}${path}`;
 
-  const languages = Object.fromEntries(
+  const languages: Record<string, string> = Object.fromEntries(
     SUPPORTED_LANGUAGES.map((l) => [l, sitePagePath(l, slug)]),
-  ) as Record<InviteLanguage, string>;
+  );
+  languages["x-default"] = sitePagePath("ko", slug);
 
   return {
-    title: `${page.title} · ${chrome.siteName}`,
+    title: {
+      absolute: `${page.title} · ${chrome.siteName}`,
+    },
     description: page.description,
     alternates: {
       canonical: path,
@@ -47,6 +51,13 @@ export function buildPageMetadata(
               ? "zh_CN"
               : "en_US",
       type: "website",
+      images: [OG_IMAGE],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: page.title,
+      description: page.description,
+      images: [OG_IMAGE.url],
     },
   };
 }

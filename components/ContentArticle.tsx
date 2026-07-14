@@ -1,4 +1,5 @@
 import type { ContentBlock, SitePageContent } from "@/lib/site-pages-i18n";
+import { faqPageJsonLd } from "@/lib/site-meta";
 
 function Block({ block }: { block: ContentBlock }) {
   switch (block.type) {
@@ -53,8 +54,24 @@ type Props = {
 };
 
 export default function ContentArticle({ page }: Props) {
+  const faqItems = page.blocks
+    .filter(
+      (block): block is Extract<ContentBlock, { type: "faq" }> =>
+        block.type === "faq",
+    )
+    .map((block) => ({ question: block.q, answer: block.a }));
+
+  const jsonLd =
+    faqItems.length > 0 ? faqPageJsonLd(faqItems) : null;
+
   return (
     <article className="content-article">
+      {jsonLd ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+      ) : null}
       <h1>{page.title}</h1>
       {page.blocks.map((block, index) => (
         <Block key={`${block.type}-${index}`} block={block} />
